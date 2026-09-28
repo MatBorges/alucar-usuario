@@ -17,6 +17,13 @@ public abstract class Usuario {
     private String login;
     private String senha;
 
+    /**
+     * Exclusao logica: um usuario inativo deixa de aparecer nas listagens e
+     * nao pode mais operar o sistema, mas continua existindo no banco para
+     * preservar o historico das locacoes que ele realizou.
+     */
+    private boolean ativo = true;
+
     protected Usuario() {
     }
 
@@ -47,12 +54,21 @@ public abstract class Usuario {
         };
     }
 
-    /** RF01 - autenticacao por login e senha. */
+    /** RF01 - autenticacao por login e senha. Usuario inativo nao autentica. */
     public boolean autenticar(String loginInformado, String senhaInformada) {
-        return this.login != null
+        return ativo
+                && this.login != null
                 && this.login.equals(loginInformado)
                 && this.senha != null
                 && this.senha.equals(senhaInformada);
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 
     public String getMatricula() {

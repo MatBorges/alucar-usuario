@@ -8,6 +8,7 @@ import br.ufms.facom.alucar.model.Usuario;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -48,6 +49,7 @@ public class TelaCadastroUsuario extends JFrame {
     private JPasswordField campoSenha;
     private JPasswordField campoConfirmacao;
     private JComboBox<TipoUsuario> comboTipo;
+    private JCheckBox caixaMostrarInativos;
     private JTable tabelaUsuarios;
     private JLabel rotuloStatus;
 
@@ -60,7 +62,9 @@ public class TelaCadastroUsuario extends JFrame {
     }
 
     private void montarInterface() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // DISPOSE, e nao EXIT: fechar esta tela nao encerra o sistema, apenas
+        // devolve o usuario a TelaPrincipal.
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(0, 8));
 
         add(criarCabecalho(), BorderLayout.NORTH);
@@ -164,25 +168,40 @@ public class TelaCadastroUsuario extends JFrame {
 
         JButton botaoSalvar = new JButton("Salvar");
         JButton botaoNovo = new JButton("Novo");
-        JButton botaoExcluir = new JButton("Excluir");
-        JButton botaoAtualizar = new JButton("Atualizar lista");
+        JButton botaoExcluir = new JButton("Inativar");
+        JButton botaoReativar = new JButton("Reativar");
+        JButton botaoFechar = new JButton("Fechar");
 
         botaoSalvar.addActionListener(e -> salvar());
         botaoNovo.addActionListener(e -> limparFormulario());
-        botaoExcluir.addActionListener(e -> excluir());
-        botaoAtualizar.addActionListener(e -> carregarUsuarios());
+        botaoExcluir.addActionListener(e -> inativar());
+        botaoReativar.addActionListener(e -> reativar());
+        botaoFechar.addActionListener(e -> dispose());
 
         c.gridx = 0; botoes.add(botaoSalvar, c);
         c.gridx = 1; botoes.add(botaoNovo, c);
         c.gridx = 2; botoes.add(botaoExcluir, c);
-        c.gridx = 3; botoes.add(botaoAtualizar, c);
+        c.gridx = 3; botoes.add(botaoReativar, c);
+        c.gridx = 4; botoes.add(botaoFechar, c);
 
         return botoes;
     }
 
     private JPanel criarPainelLista() {
-        JPanel painel = new JPanel(new BorderLayout());
+        JPanel painel = new JPanel(new BorderLayout(0, 6));
         painel.setBorder(BorderFactory.createTitledBorder("Usuarios Cadastrados"));
+
+        JPanel barraFiltro = new JPanel(new BorderLayout());
+        barraFiltro.setBorder(BorderFactory.createEmptyBorder(4, 6, 0, 6));
+
+        caixaMostrarInativos = new JCheckBox("Mostrar inativos");
+        caixaMostrarInativos.addActionListener(e -> carregarUsuarios());
+
+        JButton botaoAtualizar = new JButton("Atualizar lista");
+        botaoAtualizar.addActionListener(e -> carregarUsuarios());
+
+        barraFiltro.add(caixaMostrarInativos, BorderLayout.WEST);
+        barraFiltro.add(botaoAtualizar, BorderLayout.EAST);
 
         tabelaUsuarios = new JTable(tableModel);
         tabelaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -194,6 +213,7 @@ public class TelaCadastroUsuario extends JFrame {
             }
         });
 
+        painel.add(barraFiltro, BorderLayout.NORTH);
         painel.add(new JScrollPane(tabelaUsuarios), BorderLayout.CENTER);
         return painel;
     }
@@ -236,15 +256,17 @@ public class TelaCadastroUsuario extends JFrame {
         }
     }
 
-    private void excluir() {
+    private void inativar() {
         Usuario selecionado = tableModel.getUsuarioEm(tabelaUsuarios.getSelectedRow());
         if (selecionado == null) {
-            exibirAviso("Selecione um usuario na lista para excluir.");
+            exibirAviso("Selecione um usuario na lista para inativar.");
             return;
         }
 
         int resposta = JOptionPane.showConfirmDialog(this,
-                "Confirma a exclusao do usuario " + selecionado.getNome() + "?",
+                "Inativar o usuario " + selecionado.getNome() + "?\n\n"
+                + "Ele deixara de aparecer na lista e nao podera mais acessar o\n"
+                + "sistema, mas o historico de locacoes sera preservado.",
                 "Alucar", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
         if (resposta != JOptionPane.YES_OPTION) {
@@ -252,8 +274,29 @@ public class TelaCadastroUsuario extends JFrame {
         }
 
         try {
-            controladora.excluirUsuario(selecionado.getMatricula());
-            exibirInformacao("Usuario excluido com sucesso.");
+            controladora.inativarUsuario(selecionado.getMatricula());
+            exibirInformacao("Usuario inativado com sucesso.");
+            limparFormulario();
+            carregarUsuarios();
+
+        } catch (ValidacaoException e) {
+            exibirAviso(e.getMessage());
+        } catch (DAOException e) {
+            exibirErro(e.getMessage());
+        }
+    }
+
+    private void reativar() {
+        Usuario selecionado = tableModel.getUsuarioEm(tabelaUsuarios.getSelectedRow());
+        if (selecionado == null) {
+            exibirAviso("Selecione um usuario na lista para reativar.\n\n"
+                    + "Marque 'Mostrar inativos' para ve-los.");
+            return;
+        }
+
+        try {
+            controladora.reativarUsuario(selecionado.getMatricula());
+            exibirInformacao("Usuario reativado com sucesso.");
             limparFormulario();
             carregarUsuarios();
 
@@ -265,10 +308,14 @@ public class TelaCadastroUsuario extends JFrame {
     }
 
     private void carregarUsuarios() {
+        boolean incluirInativos = caixaMostrarInativos.isSelected();
+
         try {
-            List<Usuario> usuarios = controladora.listarUsuarios();
+            List<Usuario> usuarios = controladora.listarUsuarios(incluirInativos);
             tableModel.setUsuarios(usuarios);
-            rotuloStatus.setText(usuarios.size() + " usuario(s) cadastrado(s).");
+            rotuloStatus.setText(usuarios.size() + (incluirInativos
+                    ? " usuario(s) no total, incluindo inativos."
+                    : " usuario(s) ativo(s)."));
 
         } catch (DAOException e) {
             tableModel.setUsuarios(List.of());

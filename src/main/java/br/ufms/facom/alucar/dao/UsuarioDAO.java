@@ -16,26 +16,36 @@ import java.util.List;
  * E aqui que o mapeamento objeto-relacional acontece de fato: ao gravar, o
  * discriminador vem de usuario.getTipoUsuario(); ao ler, a coluna
  * tipo_usuario decide qual subclasse sera instanciada.
+ *
+ * A exclusao e LOGICA: nenhum metodo emite DELETE. Inativar preserva as
+ * chaves estrangeiras das locacoes ja realizadas pelo usuario.
  */
 public class UsuarioDAO {
 
+    private static final String COLUNAS =
+            "matricula, nome, login, senha, tipo_usuario, ativo";
+
     private static final String SQL_INSERIR =
-            "INSERT INTO usuario (matricula, nome, login, senha, tipo_usuario) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO usuario (" + COLUNAS + ") VALUES (?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_ATUALIZAR =
-            "UPDATE usuario SET nome = ?, login = ?, senha = ?, tipo_usuario = ? WHERE matricula = ?";
+            "UPDATE usuario SET nome = ?, login = ?, senha = ?, tipo_usuario = ? "
+            + "WHERE matricula = ?";
 
     private static final String SQL_ATUALIZAR_SEM_SENHA =
             "UPDATE usuario SET nome = ?, login = ?, tipo_usuario = ? WHERE matricula = ?";
 
-    private static final String SQL_EXCLUIR =
-            "DELETE FROM usuario WHERE matricula = ?";
+    private static final String SQL_ALTERAR_SITUACAO =
+            "UPDATE usuario SET ativo = ? WHERE matricula = ?";
 
-    private static final String SQL_LISTAR =
-            "SELECT matricula, nome, login, senha, tipo_usuario FROM usuario ORDER BY nome";
+    private static final String SQL_LISTAR_ATIVOS =
+            "SELECT " + COLUNAS + " FROM usuario WHERE ativo = TRUE ORDER BY nome";
+
+    private static final String SQL_LISTAR_TODOS =
+            "SELECT " + COLUNAS + " FROM usuario ORDER BY ativo DESC, nome";
 
     private static final String SQL_BUSCAR_POR_MATRICULA =
-            "SELECT matricula, nome, login, senha, tipo_usuario FROM usuario WHERE matricula = ?";
+            "SELECT " + COLUNAS + " FROM usuario WHERE matricula = ?";
 
     private static final String SQL_CONTAR_POR_MATRICULA =
             "SELECT COUNT(*) FROM usuario WHERE matricula = ?";
@@ -52,6 +62,7 @@ public class UsuarioDAO {
             comando.setString(3, usuario.getLogin());
             comando.setString(4, usuario.getSenha());
             comando.setString(5, usuario.getTipoUsuario().name());
+            comando.setBoolean(6, usuario.isAtivo());
             comando.executeUpdate();
 
         } catch (SQLException e) {
@@ -60,9 +71,13 @@ public class UsuarioDAO {
     }
 
     /**
-     * Atualiza o usuario. Quando novaSenhaHash e nulo, a senha atual e
+     * Atualiza o usuario. Quando alterarSenha e falso, a senha atual e
      * preservada - o atendente nao precisa redigitar a senha para corrigir
      * apenas o nome, por exemplo.
+     *
+     * A situacao (ativo) nao e alterada aqui: para isso existem os metodos
+     * inativar e reativar, que representam operacoes de negocio distintas
+     * de uma simples edicao de cadastro.
      */
     public void atualizar(Usuario usuario, boolean alterarSenha) throws DAOException {
         String sql = alterarSenha ? SQL_ATUALIZAR : SQL_ATUALIZAR_SEM_SENHA;
@@ -87,23 +102,35 @@ public class UsuarioDAO {
         }
     }
 
-    public void excluir(String matricula) throws DAOException {
-        try (Connection conexao = ConexaoBD.obterConexao();
-             PreparedStatement comando = conexao.prepareStatement(SQL_EXCLUIR)) {
+    /** Exclusao logica: marca como inativo, sem remover a linha. */
+    public void inativar(String matricula) throws DAOException {
+        alterarSituacao(matricula, false);
+    }
 
-            comando.setString(1, matricula);
+    public void reativar(String matricula) throws DAOException {
+        alterarSituacao(matricula, true);
+    }
+
+    private void alterarSituacao(String matricula, boolean ativo) throws DAOException {
+        try (Connection conexao = ConexaoBD.obterConexao();
+             PreparedStatement comando = conexao.prepareStatement(SQL_ALTERAR_SITUACAO)) {
+
+            comando.setBoolean(1, ativo);
+            comando.setString(2, matricula);
             comando.executeUpdate();
 
         } catch (SQLException e) {
-            throw new DAOException("Erro ao excluir o usuario: " + e.getMessage(), e);
+            throw new DAOException("Erro ao alterar a situacao do usuario: "
+                    + e.getMessage(), e);
         }
     }
 
-    public List<Usuario> listarTodos() throws DAOException {
+    public List<Usuario> listar(boolean incluirInativos) throws DAOException {
         List<Usuario> usuarios = new ArrayList<>();
+        String sql = incluirInativos ? SQL_LISTAR_TODOS : SQL_LISTAR_ATIVOS;
 
         try (Connection conexao = ConexaoBD.obterConexao();
-             PreparedStatement comando = conexao.prepareStatement(SQL_LISTAR);
+             PreparedStatement comando = conexao.prepareStatement(sql);
              ResultSet resultado = comando.executeQuery()) {
 
             while (resultado.next()) {
@@ -116,6 +143,7 @@ public class UsuarioDAO {
         return usuarios;
     }
 
+    /** Busca independente da situacao: necessaria para reativar um inativo. */
     public Usuario buscarPorMatricula(String matricula) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
@@ -130,6 +158,10 @@ public class UsuarioDAO {
         }
     }
 
+    /**
+     * Considera tambem os inativos: a matricula e chave primaria, entao um
+     * registro inativo continua ocupando o valor.
+     */
     public boolean existeMatricula(String matricula) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_CONTAR_POR_MATRICULA)) {
@@ -146,7 +178,8 @@ public class UsuarioDAO {
 
     /**
      * Verifica se o login ja pertence a outro usuario, ignorando o proprio
-     * registro em edicao.
+     * registro em edicao. Inativos contam: a restricao UNIQUE do banco vale
+     * para eles tambem.
      */
     public boolean loginEmUsoPorOutro(String login, String matriculaAtual) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
@@ -169,11 +202,15 @@ public class UsuarioDAO {
      */
     private Usuario montarUsuario(ResultSet resultado) throws SQLException {
         TipoUsuario tipo = TipoUsuario.valueOf(resultado.getString("tipo_usuario"));
-        return Usuario.criar(
+
+        Usuario usuario = Usuario.criar(
                 tipo,
                 resultado.getString("matricula"),
                 resultado.getString("nome"),
                 resultado.getString("login"),
                 resultado.getString("senha"));
+
+        usuario.setAtivo(resultado.getBoolean("ativo"));
+        return usuario;
     }
 }

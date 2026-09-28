@@ -1,6 +1,6 @@
 package br.ufms.facom.alucar;
 
-import br.ufms.facom.alucar.view.TelaCadastroUsuario;
+import br.ufms.facom.alucar.view.TelaPrincipal;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -19,6 +19,6 @@ public class Main {
 
         // Toda criacao e manipulacao de componentes Swing deve ocorrer na
         // Event Dispatch Thread.
-        SwingUtilities.invokeLater(() -> new TelaCadastroUsuario().setVisible(true));
+        SwingUtilities.invokeLater(() -> new TelaPrincipal().setVisible(true));
     }
 }

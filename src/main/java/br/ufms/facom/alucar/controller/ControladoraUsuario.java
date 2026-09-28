@@ -34,7 +34,16 @@ public class ControladoraUsuario {
         validarCamposObrigatorios(matricula, nome, login, tipo);
         validarSenha(senha, confirmacaoSenha, true);
 
-        if (usuarioDAO.existeMatricula(matricula.trim())) {
+        // A matricula e chave primaria: um registro inativo continua ocupando
+        // o valor, por isso a mensagem distingue os dois casos e aponta o
+        // caminho da reativacao.
+        Usuario existente = usuarioDAO.buscarPorMatricula(matricula.trim());
+        if (existente != null && !existente.isAtivo()) {
+            throw new ValidacaoException("Ja existe um usuario INATIVO com a matricula "
+                    + matricula.trim() + ".\n\n"
+                    + "Marque 'Mostrar inativos', selecione-o na lista e use Reativar.");
+        }
+        if (existente != null) {
             throw new ValidacaoException("Ja existe um usuario cadastrado com a matricula "
                     + matricula.trim() + ".");
         }
@@ -86,19 +95,43 @@ public class ControladoraUsuario {
         usuarioDAO.atualizar(usuario, alterarSenha);
     }
 
-    public void excluirUsuario(String matricula) throws ValidacaoException, DAOException {
-        if (matricula == null || matricula.isBlank()) {
-            throw new ValidacaoException("Selecione um usuario na lista para excluir.");
+    /**
+     * Exclusao logica. O usuario deixa de aparecer nas listagens e nao
+     * autentica mais, mas a linha permanece no banco: as locacoes que ele
+     * realizou continuam apontando para ela.
+     */
+    public void inativarUsuario(String matricula) throws ValidacaoException, DAOException {
+        Usuario usuario = obrigarExistir(matricula);
+
+        if (!usuario.isAtivo()) {
+            throw new ValidacaoException("Este usuario ja esta inativo.");
         }
-        if (!usuarioDAO.existeMatricula(matricula.trim())) {
+        usuarioDAO.inativar(usuario.getMatricula());
+    }
+
+    public void reativarUsuario(String matricula) throws ValidacaoException, DAOException {
+        Usuario usuario = obrigarExistir(matricula);
+
+        if (usuario.isAtivo()) {
+            throw new ValidacaoException("Este usuario ja esta ativo.");
+        }
+        usuarioDAO.reativar(usuario.getMatricula());
+    }
+
+    private Usuario obrigarExistir(String matricula) throws ValidacaoException, DAOException {
+        if (matricula == null || matricula.isBlank()) {
+            throw new ValidacaoException("Selecione um usuario na lista.");
+        }
+        Usuario usuario = usuarioDAO.buscarPorMatricula(matricula.trim());
+        if (usuario == null) {
             throw new ValidacaoException("Nenhum usuario encontrado com a matricula "
                     + matricula.trim() + ".");
         }
-        usuarioDAO.excluir(matricula.trim());
+        return usuario;
     }
 
-    public List<Usuario> listarUsuarios() throws DAOException {
-        return usuarioDAO.listarTodos();
+    public List<Usuario> listarUsuarios(boolean incluirInativos) throws DAOException {
+        return usuarioDAO.listar(incluirInativos);
     }
 
     public Usuario buscarUsuario(String matricula) throws DAOException {
