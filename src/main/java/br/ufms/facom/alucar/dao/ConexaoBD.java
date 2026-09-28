@@ -26,27 +26,43 @@ import java.sql.SQLException;
  */
 public final class ConexaoBD {
 
-    private static final String HOST = obterValor("ALUCAR_DB_HOST", "localhost");
-    private static final String PORTA = obterValor("ALUCAR_DB_PORT", "3434");
+    // Configuracao padrao compartilhada em nuvem (TiDB Cloud - sem necessidade de Docker/XAMPP)
+    private static final String HOST = obterValor("ALUCAR_DB_HOST", "gateway01.sa-east-1.prod.aws.tidbcloud.com");
+    private static final String PORTA = obterValor("ALUCAR_DB_PORT", "4000");
     private static final String BANCO = obterValor("ALUCAR_DB_NAME", "alucar");
-    private static final String USUARIO = obterValor("ALUCAR_DB_USER", "root");
-    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "123");
+    private static final String USUARIO = obterValor("ALUCAR_DB_USER", "37xCGj4XKVsW6YU.root");
+    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8e");
 
-    private static final String URL = "jdbc:mysql://" + HOST + ":" + PORTA + "/" + BANCO
-            + "?sslMode=DISABLED"
+    private static final String PARAMETROS = "?sslMode=REQUIRED"
             + "&allowPublicKeyRetrieval=true"
-            + "&connectionTimeZone=America/Campo_Grande"
-            + "&forceConnectionTimeZoneToSession=true"
             + "&characterEncoding=UTF-8";
 
     private ConexaoBD() {
     }
 
     public static Connection obterConexao() throws DAOException {
+        // 1. Tenta conexao configurada (TiDB Cloud na nuvem)
+        String urlPrimaria = "jdbc:mysql://" + HOST + ":" + PORTA + "/" + BANCO + PARAMETROS;
         try {
-            return DriverManager.getConnection(URL, USUARIO, SENHA);
-        } catch (SQLException e) {
-            throw new DAOException(montarMensagemDeFalha(e), e);
+            return DriverManager.getConnection(urlPrimaria, USUARIO, SENHA);
+        } catch (SQLException e1) {
+            // 2. Fallback para banco local (XAMPP :3306 ou Docker :3434) caso esteja sem internet
+            String urlLocal = "jdbc:mysql://localhost:3306/" + BANCO + "?sslMode=DISABLED&allowPublicKeyRetrieval=true&characterEncoding=UTF-8";
+            try {
+                return DriverManager.getConnection(urlLocal, "root", "");
+            } catch (SQLException ignored) {
+            }
+            try {
+                return DriverManager.getConnection(urlLocal, "root", "123");
+            } catch (SQLException ignored) {
+            }
+            String urlDocker = "jdbc:mysql://localhost:3434/" + BANCO + "?sslMode=DISABLED&allowPublicKeyRetrieval=true&characterEncoding=UTF-8";
+            try {
+                return DriverManager.getConnection(urlDocker, "root", "123");
+            } catch (SQLException ignored) {
+            }
+
+            throw new DAOException("Falha ao conectar tanto ao banco na nuvem quanto ao local: " + e1.getMessage(), e1);
         }
     }
 
