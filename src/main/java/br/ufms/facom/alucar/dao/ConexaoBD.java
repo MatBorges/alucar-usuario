@@ -42,6 +42,12 @@ public final class ConexaoBD {
     private static final String USUARIO = obterValor("ALUCAR_DB_USER", "root");
     private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "123");
 
+//    private static final String HOST = obterValor("ALUCAR_DB_HOST", "gateway01.sa-east-1.prod.aws.tidbcloud.com");
+//    private static final String PORTA = obterValor("ALUCAR_DB_PORT", "4000");
+//    private static final String BANCO = obterValor("ALUCAR_DB_NAME", "alucar");
+//    private static final String USUARIO = obterValor("ALUCAR_DB_USER", "37xCGj4XKVsW6YU.root");
+//    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8e");
+
     /** DISABLED para o container local; VERIFY_IDENTITY para o TiDB Cloud. */
     private static final String SSL_MODE = obterValor("ALUCAR_DB_SSL_MODE", "DISABLED");
 

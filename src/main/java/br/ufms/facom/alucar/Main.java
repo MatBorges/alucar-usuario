@@ -5,9 +5,7 @@ import br.ufms.facom.alucar.view.TelaPrincipal;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-/**
- * Ponto de entrada do modulo de cadastro de usuarios.
- */
+
 public class Main {
 
     public static void main(String[] args) {
