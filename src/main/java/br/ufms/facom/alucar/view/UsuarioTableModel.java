@@ -12,7 +12,8 @@ import java.util.List;
  */
 public class UsuarioTableModel extends AbstractTableModel {
 
-    private static final String[] COLUNAS = {"Matricula", "Nome", "Login", "Tipo"};
+    private static final String[] COLUNAS =
+            {"Matricula", "Nome", "Login", "Tipo", "Situacao"};
 
     private List<Usuario> usuarios = new ArrayList<>();
 
@@ -56,6 +57,7 @@ public class UsuarioTableModel extends AbstractTableModel {
             case 1 -> usuario.getNome();
             case 2 -> usuario.getLogin();
             case 3 -> usuario.getTipoUsuario().getDescricao();
+            case 4 -> usuario.isAtivo() ? "Ativo" : "Inativo";
             default -> "";
         };
     }

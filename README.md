@@ -72,6 +72,33 @@ por variável de ambiente em vez de ficar fixo no código.
 | `ALUCAR_DB_NAME` | alucar |
 | `ALUCAR_DB_USER` | root |
 | `ALUCAR_DB_PASSWORD` | 123 |
+| `ALUCAR_DB_SSL_MODE` | DISABLED |
+
+## Usar TiDB Cloud em vez do MySQL local
+
+O TiDB Cloud é compatível com o protocolo MySQL, então o mesmo driver e o mesmo
+código funcionam. Só as variáveis de ambiente mudam:
+
+```bash
+export ALUCAR_DB_HOST="gateway01.us-west-2.prod.aws.tidbcloud.com"
+export ALUCAR_DB_PORT="4000"
+export ALUCAR_DB_USER="<prefixo>.root"
+export ALUCAR_DB_PASSWORD="<sua senha>"
+export ALUCAR_DB_SSL_MODE="VERIFY_IDENTITY"
+```
+
+No PowerShell:
+
+```powershell
+$env:ALUCAR_DB_HOST="gateway01.us-west-2.prod.aws.tidbcloud.com"
+$env:ALUCAR_DB_PORT="4000"
+$env:ALUCAR_DB_USER="<prefixo>.root"
+$env:ALUCAR_DB_PASSWORD="<sua senha>"
+$env:ALUCAR_DB_SSL_MODE="VERIFY_IDENTITY"
+```
+
+Os valores exatos ficam no botão Connect do console do TiDB Cloud.
+O TLS é obrigatório: `sslMode=DISABLED` é recusado pelo servidor.
 
 ## Acesso inicial
 

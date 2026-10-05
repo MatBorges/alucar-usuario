@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="11232b5e-fc75-470b-badc-3977dd29aac0" name="Changes" comment="Adicionada a feature de cadastro de Cliente mais a feature de conexão ao TiDB">
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ConexaoBD.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ConexaoBD.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="31" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;MatBorges&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/MatBorges/alucar-usuario.git&quot;,
+    &quot;accountId&quot;: &quot;ed91dbb5-43af-4769-bc68-3526f29584e6&quot;
+  }
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.000034023793534" />
+      <entry key="S2" value="1.2211604034771486" />
+      <entry key="S5" value="3.2223551424990813" />
+      <entry key="S10" value="7.246420368938588" />
+      <entry key="S30" value="16.803074737755065" />
+      <entry key="S60" value="21.831898784924984" />
+      <entry key="M2" value="25.092613759803967" />
+      <entry key="M5" value="27.350841590994335" />
+      <entry key="M10" value="28.160265839501744" />
+      <entry key="M15" value="28.43674838247008" />
+      <entry key="M30" value="28.71664422671041" />
+      <entry key="H1" value="28.857886681919545" />
+      <entry key="H2" value="28.92883411326334" />
+      <entry key="H4" value="28.964389703333364" />
+      <entry key="D1" value="28.994061147543544" />
+      <entry key="W1" value="28.999151499319783" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9659363289248456" />
+      <entry key="MS500" value="0.9931204784262117" />
+      <entry key="S2" value="1.2028752955642603" />
+      <entry key="S5" value="3.1778660250722224" />
+      <entry key="S10" value="7.204245210502843" />
+      <entry key="S30" value="16.780798102623443" />
+      <entry key="S60" value="21.81926494404335" />
+      <entry key="M2" value="25.085867721612065" />
+      <entry key="M5" value="27.348031713749073" />
+      <entry key="M10" value="28.158841546996335" />
+      <entry key="M15" value="28.435794492944744" />
+      <entry key="M30" value="28.71616508599164" />
+      <entry key="H1" value="28.857646559663955" />
+      <entry key="H2" value="28.928713913795733" />
+      <entry key="H4" value="28.96432956896873" />
+      <entry key="D1" value="28.994051120335698" />
+      <entry key="W1" value="28.99915006674358" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3JwIZsHF0aleZrm8gHmaM2FLbrU" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/DEV/TRABALHO PRATICO APSOO/alucar-usuario&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-63390994e64e-intellij.indexing.shared.core-IU-262.8665.337" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="11232b5e-fc75-470b-badc-3977dd29aac0" name="Changes" comment="" />
+      <created>1790565763937</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1790565763937</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Adicionada a feature de cadastro de Cliente mais a feature de conexão ao TiDB" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adicionada a feature de cadastro de Cliente mais a feature de conexão ao TiDB" />
+  </component>
+</project>

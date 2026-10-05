@@ -1,13 +1,11 @@
 package br.ufms.facom.alucar;
 
-import br.ufms.facom.alucar.view.TelaCadastroUsuario;
+import br.ufms.facom.alucar.view.TelaPrincipal;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-/**
- * Ponto de entrada do modulo de cadastro de usuarios.
- */
+
 public class Main {
 
     public static void main(String[] args) {
@@ -19,6 +17,6 @@ public class Main {
 
         // Toda criacao e manipulacao de componentes Swing deve ocorrer na
         // Event Dispatch Thread.
-        SwingUtilities.invokeLater(() -> new TelaCadastroUsuario().setVisible(true));
+        SwingUtilities.invokeLater(() -> new TelaPrincipal().setVisible(true));
     }
 }
