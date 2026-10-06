@@ -1,5 +1,8 @@
 package br.ufms.facom.alucar.view;
 
+import br.ufms.facom.alucar.dao.ConexaoBD;
+import br.ufms.facom.alucar.dao.DAOException;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -9,6 +12,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,20 +20,32 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.sql.Connection;
 
 /**
  * Janela principal do sistema.
  *
- * Serve apenas como ponto de navegacao: cada opcao abre a tela do caso de uso
+ * Serve como ponto de navegacao: cada opcao abre a tela do caso de uso
  * correspondente. Nenhuma regra de negocio passa por aqui.
+ *
+ * A barra inferior mostra em qual banco o sistema esta operando. Isso
+ * importa porque a ConexaoBD cai para um MySQL local quando o TiDB Cloud
+ * nao responde - sem esse indicador, seria possivel trabalhar o dia inteiro
+ * sobre o banco errado sem perceber.
  */
 public class TelaPrincipal extends JFrame {
 
     private static final Color AZUL_CABECALHO = new Color(31, 95, 145);
+    private static final Color VERDE_OK = new Color(0, 110, 60);
+    private static final Color AMBAR_ALERTA = new Color(160, 95, 0);
+    private static final Color VERMELHO_ERRO = new Color(165, 30, 30);
+
+    private JLabel rotuloConexao;
 
     public TelaPrincipal() {
         super("Alucar - Sistema de Gestao de Locadora");
         montarInterface();
+        verificarConexao();
     }
 
     private void montarInterface() {
@@ -41,8 +57,8 @@ public class TelaPrincipal extends JFrame {
         add(criarPainelDeAtalhos(), BorderLayout.CENTER);
         add(criarRodape(), BorderLayout.SOUTH);
 
-        setSize(520, 340);
-        setMinimumSize(new Dimension(460, 300));
+        setSize(560, 380);
+        setMinimumSize(new Dimension(500, 340));
         setLocationRelativeTo(null);
     }
 
@@ -61,8 +77,15 @@ public class TelaPrincipal extends JFrame {
         menuCadastros.add(itemUsuarios);
 
         JMenu menuSistema = new JMenu("Sistema");
+
+        JMenuItem itemTestarConexao = new JMenuItem("Testar conexao");
+        itemTestarConexao.addActionListener(e -> verificarConexao());
+
         JMenuItem itemSair = new JMenuItem("Sair");
         itemSair.addActionListener(e -> System.exit(0));
+
+        menuSistema.add(itemTestarConexao);
+        menuSistema.addSeparator();
         menuSistema.add(itemSair);
 
         barra.add(menuCadastros);
@@ -113,15 +136,80 @@ public class TelaPrincipal extends JFrame {
     }
 
     private JPanel criarRodape() {
-        JPanel rodape = new JPanel(new BorderLayout());
+        JPanel rodape = new JPanel(new BorderLayout(0, 4));
         rodape.setBorder(BorderFactory.createEmptyBorder(4, 12, 10, 12));
 
-        JLabel rotulo = new JLabel("Grupo 3 - Analise e Projeto de Software OO");
-        rotulo.setHorizontalAlignment(SwingConstants.CENTER);
-        rotulo.setFont(rotulo.getFont().deriveFont(Font.PLAIN, 11f));
+        rotuloConexao = new JLabel("Verificando conexao com o banco...");
+        rotuloConexao.setHorizontalAlignment(SwingConstants.CENTER);
+        rotuloConexao.setFont(rotuloConexao.getFont().deriveFont(Font.PLAIN, 12f));
 
-        rodape.add(rotulo, BorderLayout.CENTER);
+        JLabel rotuloGrupo = new JLabel("Grupo 3 - Analise e Projeto de Software OO");
+        rotuloGrupo.setHorizontalAlignment(SwingConstants.CENTER);
+        rotuloGrupo.setFont(rotuloGrupo.getFont().deriveFont(Font.PLAIN, 11f));
+
+        rodape.add(rotuloConexao, BorderLayout.NORTH);
+        rodape.add(rotuloGrupo, BorderLayout.SOUTH);
         return rodape;
+    }
+
+    /**
+     * Abre e fecha uma conexao apenas para descobrir qual banco respondeu.
+     *
+     * Roda em SwingWorker porque conectar a um servidor na nuvem leva
+     * centenas de milissegundos (e segundos, se o cluster estiver hibernando).
+     * Na Event Dispatch Thread isso congelaria a janela.
+     */
+    private void verificarConexao() {
+        rotuloConexao.setText("Verificando conexao com o banco...");
+        rotuloConexao.setForeground(Color.GRAY);
+
+        new SwingWorker<String, Void>() {
+
+            private boolean houveFalha = false;
+            private boolean emContingencia = false;
+
+            @Override
+            protected String doInBackground() {
+                try (Connection ignorada = ConexaoBD.obterConexao()) {
+                    emContingencia = ConexaoBD.estaUsandoContingencia();
+                    return "Conectado a " + ConexaoBD.descreverConexaoAtiva();
+
+                } catch (Exception e) {
+                    houveFalha = true;
+                    String detalhe = (e instanceof DAOException)
+                            ? primeiraLinha(e.getMessage())
+                            : e.getMessage();
+                    return "Sem conexao com o banco: " + detalhe;
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    rotuloConexao.setText(get());
+                } catch (Exception e) {
+                    rotuloConexao.setText("Nao foi possivel verificar a conexao.");
+                    houveFalha = true;
+                }
+
+                if (houveFalha) {
+                    rotuloConexao.setForeground(VERMELHO_ERRO);
+                } else if (emContingencia) {
+                    rotuloConexao.setForeground(AMBAR_ALERTA);
+                } else {
+                    rotuloConexao.setForeground(VERDE_OK);
+                }
+            }
+        }.execute();
+    }
+
+    /** As mensagens da ConexaoBD tem varias linhas; na barra cabe so a primeira. */
+    private String primeiraLinha(String mensagem) {
+        if (mensagem == null) {
+            return "causa desconhecida";
+        }
+        int quebra = mensagem.indexOf('\n');
+        return quebra < 0 ? mensagem : mensagem.substring(0, quebra);
     }
 
     private void abrirCadastroClientes() {
