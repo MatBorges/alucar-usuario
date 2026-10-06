@@ -10,16 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Persistencia de clientes na tabela 'cliente'.
- *
- * As datas trafegam como java.time.LocalDate no modelo e como java.sql.Date
- * no banco; a conversao acontece apenas aqui, para que nem a tela nem a
- * controladora precisem conhecer tipos de JDBC.
- *
- * A exclusao e LOGICA: nenhum metodo emite DELETE. Inativar preserva as
- * chaves estrangeiras das locacoes ja feitas pelo cliente.
- */
+
 public class ClienteDAO {
 
     private static final String COLUNAS =
@@ -77,10 +68,7 @@ public class ClienteDAO {
         }
     }
 
-    /**
-     * Atualiza os dados cadastrais. A situacao (ativo) nao e tocada aqui:
-     * inativar e reativar sao operacoes de negocio proprias.
-     */
+
     public void atualizar(Cliente cliente) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_ATUALIZAR)) {
@@ -100,7 +88,7 @@ public class ClienteDAO {
         }
     }
 
-    /** Exclusao logica: marca como inativo, sem remover a linha. */
+
     public void inativar(String cpf) throws DAOException {
         alterarSituacao(cpf, false);
     }
@@ -163,7 +151,7 @@ public class ClienteDAO {
         return clientes;
     }
 
-    /** Busca independente da situacao: necessaria para reativar um inativo. */
+
     public Cliente buscarPorCpf(String cpf) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_BUSCAR_POR_CPF)) {
@@ -178,10 +166,7 @@ public class ClienteDAO {
         }
     }
 
-    /**
-     * Considera tambem os inativos: o CPF e chave primaria, entao um
-     * registro inativo continua ocupando o valor.
-     */
+
     public boolean existeCpf(String cpf) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_CONTAR_POR_CPF)) {
@@ -196,10 +181,7 @@ public class ClienteDAO {
         }
     }
 
-    /**
-     * Verifica se a CNH ja pertence a outro cliente, ignorando o proprio.
-     * Inativos contam: a restricao UNIQUE do banco vale para eles tambem.
-     */
+
     public boolean cnhEmUsoPorOutro(String cnh, String cpfAtual) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_CONTAR_POR_CNH)) {

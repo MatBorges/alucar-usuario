@@ -4,14 +4,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Objects;
 
-/**
- * Cliente da locadora (RF03).
- *
- * Concentra os dados exigidos para a locacao: identificacao, habilitacao e
- * contato. A verificacao da validade da CNH vive aqui, e nao na controladora,
- * porque e o Cliente quem detem os dados necessarios para responde-la
- * (GRASP Information Expert).
- */
+
 public class Cliente {
 
     private String cpf;
@@ -23,11 +16,7 @@ public class Cliente {
     private String email;
     private String endereco;
 
-    /**
-     * Exclusao logica: um cliente inativo some das listagens e nao pode
-     * iniciar novas locacoes, mas continua no banco para preservar o
-     * historico das locacoes que ja fez.
-     */
+
     private boolean ativo = true;
 
     public Cliente() {
@@ -46,10 +35,7 @@ public class Cliente {
         this.endereco = endereco;
     }
 
-    /**
-     * RN01 - a CNH precisa estar dentro da validade.
-     * O proprio dia do vencimento ainda e considerado valido.
-     */
+
     public boolean possuiCnhValida() {
         return validadeCnh != null && !validadeCnh.isBefore(LocalDate.now());
     }

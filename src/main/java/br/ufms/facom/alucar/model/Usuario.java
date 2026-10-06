@@ -4,14 +4,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-/**
- * Classe base da hierarquia de usuarios do sistema (RF04).
- *
- * A heranca Usuario -> Atendente / Gerente / Mecanico e mapeada para uma
- * unica tabela relacional (usuario), usando a coluna tipo_usuario como
- * discriminador. Por isso a classe e abstrata: nao existe "usuario generico",
- * todo usuario persistido tem um tipo concreto.
- */
+
 public abstract class Usuario {
 
     private String matricula;
@@ -20,18 +13,10 @@ public abstract class Usuario {
     private String login;
     private String senha;
 
-    /**
-     * Data da ultima troca de senha. Base para o RNF03: o sistema compara
-     * esta data com o prazo de expiracao configurado para decidir se a
-     * redefinicao e obrigatoria.
-     */
+
     private LocalDate dataUltimaTrocaSenha = LocalDate.now();
 
-    /**
-     * Exclusao logica: um usuario inativo deixa de aparecer nas listagens e
-     * nao pode mais operar o sistema, mas continua existindo no banco para
-     * preservar o historico das locacoes que ele realizou.
-     */
+
     private boolean ativo = true;
 
     protected Usuario() {
@@ -45,16 +30,10 @@ public abstract class Usuario {
         this.senha = senha;
     }
 
-    /**
-     * Discriminador da heranca. Cada subclasse devolve o seu proprio tipo,
-     * e e esse valor que vai para a coluna tipo_usuario.
-     */
+
     public abstract TipoUsuario getTipoUsuario();
 
-    /**
-     * Fabrica usada pelo DAO ao ler uma linha da tabela usuario: converte o
-     * valor do discriminador na subclasse correspondente.
-     */
+
     public static Usuario criar(TipoUsuario tipo, String matricula, String cpf,
                                 String nome, String login, String senha) {
         Objects.requireNonNull(tipo, "Tipo de usuario nao informado");
@@ -65,7 +44,7 @@ public abstract class Usuario {
         };
     }
 
-    /** RF01 - autenticacao por login e senha. Usuario inativo nao autentica. */
+
     public boolean autenticar(String loginInformado, String senhaInformada) {
         return ativo
                 && this.login != null
@@ -74,10 +53,7 @@ public abstract class Usuario {
                 && this.senha.equals(senhaInformada);
     }
 
-    /**
-     * RNF03 - indica se a senha ultrapassou o prazo de validade configurado.
-     * Um prazo menor ou igual a zero desliga a expiracao.
-     */
+
     public boolean senhaExpirada(int prazoEmDias) {
         if (prazoEmDias <= 0 || dataUltimaTrocaSenha == null) {
             return false;
@@ -85,10 +61,7 @@ public abstract class Usuario {
         return LocalDate.now().isAfter(dataUltimaTrocaSenha.plusDays(prazoEmDias));
     }
 
-    /**
-     * Quantos dias faltam para a senha expirar. Devolve um numero negativo
-     * quando ela ja esta vencida.
-     */
+
     public long diasAteExpirarSenha(int prazoEmDias) {
         if (prazoEmDias <= 0 || dataUltimaTrocaSenha == null) {
             return Long.MAX_VALUE;

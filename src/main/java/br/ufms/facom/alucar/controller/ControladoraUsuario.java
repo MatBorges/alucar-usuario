@@ -11,13 +11,7 @@ import br.ufms.facom.alucar.util.SenhaUtil;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Controladora do caso de uso "Gerenciar Usuarios" (RF04).
- *
- * Cumpre o papel de Controller do GRASP: recebe os eventos disparados pela
- * tela, valida as regras, e delega a persistencia ao DAO. A tela nunca
- * conversa diretamente com o DAO nem com o banco.
- */
+
 public class ControladoraUsuario {
 
     private final UsuarioDAO usuarioDAO;
@@ -26,10 +20,7 @@ public class ControladoraUsuario {
         this.usuarioDAO = new UsuarioDAO();
     }
 
-    /**
-     * Cadastra um novo usuario. A senha chega em texto puro e e convertida em
-     * hash antes de seguir para o DAO.
-     */
+//    Senhas são armazenadas em hash
     public void cadastrarUsuario(String matricula, String cpf, String nome, String login,
                                  String senha, String confirmacaoSenha,
                                  TipoUsuario tipo) throws ValidacaoException, DAOException {
@@ -39,9 +30,7 @@ public class ControladoraUsuario {
 
         String cpfDigitos = CpfUtil.limpar(cpf);
 
-        // A matricula e chave primaria: um registro inativo continua ocupando
-        // o valor, por isso a mensagem distingue os dois casos e aponta o
-        // caminho da reativacao.
+
         Usuario existente = usuarioDAO.buscarPorMatricula(matricula.trim());
         if (existente != null && !existente.isAtivo()) {
             throw new ValidacaoException("Ja existe um usuario INATIVO com a matricula "
@@ -71,12 +60,7 @@ public class ControladoraUsuario {
         usuarioDAO.inserir(usuario);
     }
 
-    /**
-     * Altera um usuario existente. Senha em branco significa "manter a senha
-     * atual", por isso a validacao dela e condicional - e nesse caso a data
-     * da ultima troca tambem e preservada, para nao renovar indevidamente o
-     * prazo do RNF03.
-     */
+
     public void alterarUsuario(String matricula, String cpf, String nome, String login,
                                String senha, String confirmacaoSenha,
                                TipoUsuario tipo) throws ValidacaoException, DAOException {
@@ -117,11 +101,7 @@ public class ControladoraUsuario {
         usuarioDAO.atualizar(usuario, alterarSenha);
     }
 
-    /**
-     * Exclusao logica. O usuario deixa de aparecer nas listagens e nao
-     * autentica mais, mas a linha permanece no banco: as locacoes que ele
-     * realizou continuam apontando para ela.
-     */
+
     public void inativarUsuario(String matricula) throws ValidacaoException, DAOException {
         Usuario usuario = obrigarExistir(matricula);
 
@@ -160,7 +140,7 @@ public class ControladoraUsuario {
         return usuarioDAO.buscarPorMatricula(matricula);
     }
 
-    /** RNF03 - prazo configurado para expiracao das senhas. */
+
     public int getPrazoExpiracaoSenha() {
         return ParametrosSistema.getPrazoExpiracaoSenhaEmDias();
     }

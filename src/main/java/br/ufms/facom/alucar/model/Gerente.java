@@ -1,8 +1,6 @@
 package br.ufms.facom.alucar.model;
 
-/**
- * Usuario com permissao administrativa: cadastros e relatorios gerenciais.
- */
+
 public class Gerente extends Usuario {
 
     public Gerente() {

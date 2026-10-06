@@ -11,16 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Realiza a persistencia da hierarquia de usuarios na tabela unica 'usuario'.
- *
- * E aqui que o mapeamento objeto-relacional acontece de fato: ao gravar, o
- * discriminador vem de usuario.getTipoUsuario(); ao ler, a coluna
- * tipo_usuario decide qual subclasse sera instanciada.
- *
- * A exclusao e LOGICA: nenhum metodo emite DELETE. Inativar preserva as
- * chaves estrangeiras das locacoes ja realizadas pelo usuario.
- */
+
 public class UsuarioDAO {
 
     private static final String COLUNAS =
@@ -77,16 +68,7 @@ public class UsuarioDAO {
         }
     }
 
-    /**
-     * Atualiza o usuario. Quando alterarSenha e falso, a senha atual e a data
-     * da ultima troca sao preservadas - o gerente nao precisa redigitar a
-     * senha para corrigir apenas o nome, e corrigir o nome nao pode renovar
-     * o prazo de expiracao da senha (RNF03).
-     *
-     * A situacao (ativo) nao e alterada aqui: para isso existem os metodos
-     * inativar e reativar, que representam operacoes de negocio distintas
-     * de uma simples edicao de cadastro.
-     */
+
     public void atualizar(Usuario usuario, boolean alterarSenha) throws DAOException {
         String sql = alterarSenha ? SQL_ATUALIZAR : SQL_ATUALIZAR_SEM_SENHA;
 
@@ -113,7 +95,7 @@ public class UsuarioDAO {
         }
     }
 
-    /** Exclusao logica: marca como inativo, sem remover a linha. */
+
     public void inativar(String matricula) throws DAOException {
         alterarSituacao(matricula, false);
     }
@@ -154,7 +136,7 @@ public class UsuarioDAO {
         return usuarios;
     }
 
-    /** Busca independente da situacao: necessaria para reativar um inativo. */
+//    usca todos
     public Usuario buscarPorMatricula(String matricula) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
@@ -169,10 +151,7 @@ public class UsuarioDAO {
         }
     }
 
-    /**
-     * Considera tambem os inativos: a matricula e chave primaria, entao um
-     * registro inativo continua ocupando o valor.
-     */
+
     public boolean existeMatricula(String matricula) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_CONTAR_POR_MATRICULA)) {
@@ -187,17 +166,13 @@ public class UsuarioDAO {
         }
     }
 
-    /**
-     * Verifica se o login ja pertence a outro usuario, ignorando o proprio
-     * registro em edicao. Inativos contam: a restricao UNIQUE do banco vale
-     * para eles tambem.
-     */
+
     public boolean loginEmUsoPorOutro(String login, String matriculaAtual) throws DAOException {
         return contarComFiltro(SQL_CONTAR_POR_LOGIN, login, matriculaAtual,
                 "Erro ao verificar o login: ");
     }
 
-    /** Mesma logica do login, aplicada ao CPF (RF04). */
+
     public boolean cpfEmUsoPorOutro(String cpf, String matriculaAtual) throws DAOException {
         return contarComFiltro(SQL_CONTAR_POR_CPF, cpf, matriculaAtual,
                 "Erro ao verificar o CPF: ");
@@ -220,10 +195,7 @@ public class UsuarioDAO {
         }
     }
 
-    /**
-     * Converte uma linha da tabela no objeto da subclasse correta.
-     * Este metodo e o coracao do mapeamento da heranca por tabela unica.
-     */
+
     private Usuario montarUsuario(ResultSet resultado) throws SQLException {
         TipoUsuario tipo = TipoUsuario.valueOf(resultado.getString("tipo_usuario"));
 

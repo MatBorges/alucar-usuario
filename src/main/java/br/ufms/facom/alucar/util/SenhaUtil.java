@@ -4,11 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Gera o resumo (hash) da senha antes de gravar no banco, atendendo ao RNF04
- * (armazenamento seguro de credenciais). A senha em texto puro nunca e
- * persistida: a coluna senha guarda apenas o hash hexadecimal.
- */
+
 public final class SenhaUtil {
 
     private SenhaUtil() {

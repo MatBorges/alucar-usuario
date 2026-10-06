@@ -1,9 +1,6 @@
 package br.ufms.facom.alucar.model;
 
-/**
- * Discriminador da heranca Usuario -> Atendente / Gerente / Mecanico.
- * Mapeado na coluna tipo_usuario da tabela usuario (estrategia de tabela unica).
- */
+
 public enum TipoUsuario {
 
     GERENTE("Gerente"),

@@ -10,13 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-/**
- * Controladora do caso de uso "Manter Clientes" (RF03).
- *
- * Recebe os dados da tela como texto (e assim que eles chegam dos campos),
- * converte, valida e delega ao DAO. A tela nao precisa saber converter data
- * nem interpretar regra de negocio.
- */
+
 public class ControladoraCliente {
 
     private static final DateTimeFormatter FORMATO_BR =
@@ -74,11 +68,7 @@ public class ControladoraCliente {
         clienteDAO.atualizar(cliente);
     }
 
-    /**
-     * Exclusao logica. O cliente some das listagens e nao pode iniciar novas
-     * locacoes, mas a linha permanece no banco: as locacoes que ele ja fez
-     * continuam apontando para ela.
-     */
+
     public void inativarCliente(String cpf) throws ValidacaoException, DAOException {
         Cliente cliente = obrigarExistir(cpf);
 
@@ -127,11 +117,7 @@ public class ControladoraCliente {
         return clienteDAO.buscarPorCpf(CpfUtil.limpar(cpf));
     }
 
-    /**
-     * Converte o texto vindo da tela em um Cliente ja validado.
-     * O CPF e a CNH sao guardados apenas com digitos: a formatacao e assunto
-     * da apresentacao, nao do armazenamento.
-     */
+
     private Cliente montarEValidar(String cpf, String nome, String cnh, String validadeCnh,
                                    String dataNascimento, String telefone, String email,
                                    String endereco) throws ValidacaoException {

@@ -1,9 +1,6 @@
 package br.ufms.facom.alucar.model;
 
-/**
- * Usuario responsavel pelo atendimento no balcao.
- * E o ator do caso de uso "Realizar Locacao".
- */
+
 public class Atendente extends Usuario {
 
     public Atendente() {
