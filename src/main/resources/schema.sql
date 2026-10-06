@@ -1,7 +1,7 @@
 -- ============================================================
 -- Alucar - Sistema de Gestao de Locadora de Veiculos
 -- Script de criacao do banco (iteracao 1)
--- Banco: MySQL 8
+-- Compativel com MySQL 8 e TiDB Cloud
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS alucar
@@ -16,30 +16,38 @@ USE alucar;
 -- pela estrategia de TABELA UNICA, com a coluna tipo_usuario
 -- atuando como discriminador.
 --
--- A coluna 'ativo' implementa a EXCLUSAO LOGICA: nenhum registro e
--- removido fisicamente, para nao quebrar as chaves estrangeiras das
--- locacoes ja realizadas nem apagar o historico.
+-- 'ativo' implementa a EXCLUSAO LOGICA: nenhum registro e removido
+-- fisicamente, para nao quebrar as chaves estrangeiras das locacoes
+-- ja realizadas nem apagar o historico.
+--
+-- 'data_ultima_troca_senha' atende ao RNF03: comparada com o prazo
+-- configurado em ParametrosSistema, define se a senha expirou.
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS usuario (
-    matricula     VARCHAR(20)  NOT NULL,
-    nome          VARCHAR(100) NOT NULL,
-    login         VARCHAR(30)  NOT NULL,
-    senha         VARCHAR(255) NOT NULL,
-    tipo_usuario  VARCHAR(15)  NOT NULL,
-    ativo         BOOLEAN      NOT NULL DEFAULT TRUE,
+    matricula                VARCHAR(20)  NOT NULL,
+    cpf                      VARCHAR(11)  NOT NULL,
+    nome                     VARCHAR(100) NOT NULL,
+    login                    VARCHAR(30)  NOT NULL,
+    senha                    VARCHAR(255) NOT NULL,
+    tipo_usuario             VARCHAR(15)  NOT NULL,
+    data_ultima_troca_senha  DATE         NOT NULL,
+    ativo                    BOOLEAN      NOT NULL DEFAULT TRUE,
 
     CONSTRAINT pk_usuario PRIMARY KEY (matricula),
     CONSTRAINT uk_usuario_login UNIQUE (login),
+    CONSTRAINT uk_usuario_cpf UNIQUE (cpf),
     CONSTRAINT ck_usuario_tipo CHECK (tipo_usuario IN ('GERENTE', 'ATENDENTE', 'MECANICO'))
 );
 
 -- Nota para TiDB Cloud: o suporte a CHECK constraint depende da versao e da
 -- variavel tidb_enable_check_constraint. Se o CREATE TABLE acima falhar ou a
--- restricao for ignorada, remova a linha do CHECK - a validacao do tipo ja e
--- garantida pela aplicacao, em ControladoraUsuario e no enum TipoUsuario.
+-- restricao for ignorada, troque a coluna por
+--   tipo_usuario ENUM('GERENTE','ATENDENTE','MECANICO') NOT NULL
+-- e remova a linha do CHECK. A validacao do tipo ja e garantida pela
+-- aplicacao, em ControladoraUsuario e no enum TipoUsuario.
 
 -- ------------------------------------------------------------
--- RF03 - Clientes
+-- RF01 - Clientes
 -- O CPF e a chave natural. CNH tambem e unica: uma habilitacao
 -- pertence a uma unica pessoa.
 -- ------------------------------------------------------------
@@ -59,27 +67,46 @@ CREATE TABLE IF NOT EXISTS cliente (
 );
 
 -- ------------------------------------------------------------
--- MIGRACAO - execute apenas se as tabelas ja existiam SEM a
--- coluna 'ativo'. O MySQL nao aceita ADD COLUMN IF NOT EXISTS,
+-- MIGRACAO - execute apenas se as tabelas ja existiam sem as
+-- colunas novas. O MySQL nao aceita ADD COLUMN IF NOT EXISTS,
 -- entao rodar duas vezes gera erro de coluna duplicada, que pode
 -- ser ignorado com seguranca.
+--
+-- As colunas cpf e data_ultima_troca_senha entram primeiro como
+-- anulaveis, porque uma coluna NOT NULL nao pode ser adicionada a
+-- uma tabela que ja tem linhas sem valor para ela. Depois de
+-- preencher os registros existentes, elas passam a NOT NULL.
 -- ------------------------------------------------------------
 -- ALTER TABLE usuario ADD COLUMN ativo BOOLEAN NOT NULL DEFAULT TRUE;
 -- ALTER TABLE cliente ADD COLUMN ativo BOOLEAN NOT NULL DEFAULT TRUE;
+--
+-- ALTER TABLE usuario ADD COLUMN cpf VARCHAR(11) NULL;
+-- ALTER TABLE usuario ADD COLUMN data_ultima_troca_senha DATE NULL;
+-- UPDATE usuario SET cpf = '10433218100' WHERE matricula = '0001';
+-- UPDATE usuario SET data_ultima_troca_senha = CURRENT_DATE
+--     WHERE data_ultima_troca_senha IS NULL;
+-- ALTER TABLE usuario MODIFY COLUMN cpf VARCHAR(11) NOT NULL;
+-- ALTER TABLE usuario MODIFY COLUMN data_ultima_troca_senha DATE NOT NULL;
+-- ALTER TABLE usuario ADD CONSTRAINT uk_usuario_cpf UNIQUE (cpf);
 
--- Opcional: liberar o banco alucar para o usuario mateus_lbd, caso voce
--- prefira nao usar o root na aplicacao. Execute como root.
+-- Opcional: liberar o banco alucar para outro usuario do servidor.
 -- GRANT ALL PRIVILEGES ON alucar.* TO 'mateus_lbd'@'%';
 -- FLUSH PRIVILEGES;
 
+-- ------------------------------------------------------------
 -- Usuario inicial para permitir o primeiro acesso.
 -- Senha em texto puro: alucar123
 -- Valor gravado: hash SHA-256 gerado por SenhaUtil.gerarHash
-INSERT INTO usuario (matricula, nome, login, senha, tipo_usuario, ativo)
+-- CPF ficticio, com digito verificador valido.
+-- ------------------------------------------------------------
+INSERT INTO usuario (matricula, cpf, nome, login, senha, tipo_usuario,
+                     data_ultima_troca_senha, ativo)
 SELECT '0001',
+       '10433218100',
        'Administrador do Sistema',
        'admin',
        '03aa71dbf30eb045c6eb87f47845392384dbf442bc94a6bcd93933a13f71f07d',
        'GERENTE',
+       CURRENT_DATE,
        TRUE
 WHERE NOT EXISTS (SELECT 1 FROM usuario WHERE matricula = '0001');

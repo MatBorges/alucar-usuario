@@ -4,12 +4,15 @@ import br.ufms.facom.alucar.dao.DAOException;
 import br.ufms.facom.alucar.dao.UsuarioDAO;
 import br.ufms.facom.alucar.model.TipoUsuario;
 import br.ufms.facom.alucar.model.Usuario;
+import br.ufms.facom.alucar.util.CpfUtil;
+import br.ufms.facom.alucar.util.ParametrosSistema;
 import br.ufms.facom.alucar.util.SenhaUtil;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Controladora do caso de uso "Manter Usuarios" (RF04).
+ * Controladora do caso de uso "Gerenciar Usuarios" (RF04).
  *
  * Cumpre o papel de Controller do GRASP: recebe os eventos disparados pela
  * tela, valida as regras, e delega a persistencia ao DAO. A tela nunca
@@ -27,12 +30,14 @@ public class ControladoraUsuario {
      * Cadastra um novo usuario. A senha chega em texto puro e e convertida em
      * hash antes de seguir para o DAO.
      */
-    public void cadastrarUsuario(String matricula, String nome, String login,
+    public void cadastrarUsuario(String matricula, String cpf, String nome, String login,
                                  String senha, String confirmacaoSenha,
                                  TipoUsuario tipo) throws ValidacaoException, DAOException {
 
-        validarCamposObrigatorios(matricula, nome, login, tipo);
+        validarCamposObrigatorios(matricula, cpf, nome, login, tipo);
         validarSenha(senha, confirmacaoSenha, true);
+
+        String cpfDigitos = CpfUtil.limpar(cpf);
 
         // A matricula e chave primaria: um registro inativo continua ocupando
         // o valor, por isso a mensagem distingue os dois casos e aponta o
@@ -50,26 +55,35 @@ public class ControladoraUsuario {
         if (usuarioDAO.loginEmUsoPorOutro(login.trim(), null)) {
             throw new ValidacaoException("O login informado ja esta em uso por outro usuario.");
         }
+        if (usuarioDAO.cpfEmUsoPorOutro(cpfDigitos, null)) {
+            throw new ValidacaoException("O CPF informado ja pertence a outro usuario.");
+        }
 
         Usuario usuario = Usuario.criar(
                 tipo,
                 matricula.trim(),
+                cpfDigitos,
                 nome.trim(),
                 login.trim(),
                 SenhaUtil.gerarHash(senha));
 
+        usuario.setDataUltimaTrocaSenha(LocalDate.now());
         usuarioDAO.inserir(usuario);
     }
 
     /**
      * Altera um usuario existente. Senha em branco significa "manter a senha
-     * atual", por isso a validacao dela e condicional.
+     * atual", por isso a validacao dela e condicional - e nesse caso a data
+     * da ultima troca tambem e preservada, para nao renovar indevidamente o
+     * prazo do RNF03.
      */
-    public void alterarUsuario(String matricula, String nome, String login,
+    public void alterarUsuario(String matricula, String cpf, String nome, String login,
                                String senha, String confirmacaoSenha,
                                TipoUsuario tipo) throws ValidacaoException, DAOException {
 
-        validarCamposObrigatorios(matricula, nome, login, tipo);
+        validarCamposObrigatorios(matricula, cpf, nome, login, tipo);
+
+        String cpfDigitos = CpfUtil.limpar(cpf);
 
         Usuario existente = usuarioDAO.buscarPorMatricula(matricula.trim());
         if (existente == null) {
@@ -78,6 +92,9 @@ public class ControladoraUsuario {
         }
         if (usuarioDAO.loginEmUsoPorOutro(login.trim(), matricula.trim())) {
             throw new ValidacaoException("O login informado ja esta em uso por outro usuario.");
+        }
+        if (usuarioDAO.cpfEmUsoPorOutro(cpfDigitos, matricula.trim())) {
+            throw new ValidacaoException("O CPF informado ja pertence a outro usuario.");
         }
 
         boolean alterarSenha = senha != null && !senha.isBlank();
@@ -88,9 +105,14 @@ public class ControladoraUsuario {
         Usuario usuario = Usuario.criar(
                 tipo,
                 matricula.trim(),
+                cpfDigitos,
                 nome.trim(),
                 login.trim(),
                 alterarSenha ? SenhaUtil.gerarHash(senha) : existente.getSenha());
+
+        usuario.setDataUltimaTrocaSenha(alterarSenha
+                ? LocalDate.now()
+                : existente.getDataUltimaTrocaSenha());
 
         usuarioDAO.atualizar(usuario, alterarSenha);
     }
@@ -138,7 +160,12 @@ public class ControladoraUsuario {
         return usuarioDAO.buscarPorMatricula(matricula);
     }
 
-    private void validarCamposObrigatorios(String matricula, String nome,
+    /** RNF03 - prazo configurado para expiracao das senhas. */
+    public int getPrazoExpiracaoSenha() {
+        return ParametrosSistema.getPrazoExpiracaoSenhaEmDias();
+    }
+
+    private void validarCamposObrigatorios(String matricula, String cpf, String nome,
                                            String login, TipoUsuario tipo)
             throws ValidacaoException {
 
@@ -148,6 +175,16 @@ public class ControladoraUsuario {
         if (matricula.trim().length() > 20) {
             throw new ValidacaoException("A matricula deve ter no maximo 20 caracteres.");
         }
+
+        String cpfDigitos = CpfUtil.limpar(cpf);
+        if (cpfDigitos.isEmpty()) {
+            throw new ValidacaoException("Informe o CPF do usuario.");
+        }
+        if (!CpfUtil.ehValido(cpfDigitos)) {
+            throw new ValidacaoException("O CPF informado e invalido.\n"
+                    + "Confira os digitos e tente novamente.");
+        }
+
         if (nome == null || nome.isBlank()) {
             throw new ValidacaoException("Informe o nome do usuario.");
         }

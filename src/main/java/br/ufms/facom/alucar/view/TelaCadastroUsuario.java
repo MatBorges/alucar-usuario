@@ -10,6 +10,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -20,6 +21,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.text.MaskFormatter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -27,6 +29,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -44,6 +47,7 @@ public class TelaCadastroUsuario extends JFrame {
     private final UsuarioTableModel tableModel = new UsuarioTableModel();
 
     private JTextField campoMatricula;
+    private JFormattedTextField campoCpf;
     private JTextField campoNome;
     private JTextField campoLogin;
     private JPasswordField campoSenha;
@@ -71,8 +75,8 @@ public class TelaCadastroUsuario extends JFrame {
         add(criarPainelCentral(), BorderLayout.CENTER);
         add(criarBarraStatus(), BorderLayout.SOUTH);
 
-        setSize(760, 620);
-        setMinimumSize(new Dimension(700, 560));
+        setSize(880, 660);
+        setMinimumSize(new Dimension(820, 600));
         setLocationRelativeTo(null);
     }
 
@@ -112,6 +116,7 @@ public class TelaCadastroUsuario extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
 
         campoMatricula = new JTextField(14);
+        campoCpf = criarCampoComMascara("###.###.###-##");
         campoNome = new JTextField(28);
         campoLogin = new JTextField(16);
         campoSenha = new JPasswordField(16);
@@ -125,9 +130,9 @@ public class TelaCadastroUsuario extends JFrame {
         c.gridx = 1; c.weightx = 1;
         formulario.add(campoMatricula, c);
         c.gridx = 2; c.weightx = 0;
-        formulario.add(new JLabel("Tipo:"), c);
+        formulario.add(new JLabel("CPF:"), c);
         c.gridx = 3; c.weightx = 1;
-        formulario.add(comboTipo, c);
+        formulario.add(campoCpf, c);
 
         linha++;
         c.gridx = 0; c.gridy = linha; c.weightx = 0;
@@ -141,6 +146,10 @@ public class TelaCadastroUsuario extends JFrame {
         formulario.add(new JLabel("Login:"), c);
         c.gridx = 1; c.weightx = 1;
         formulario.add(campoLogin, c);
+        c.gridx = 2; c.weightx = 0;
+        formulario.add(new JLabel("Tipo:"), c);
+        c.gridx = 3; c.weightx = 1;
+        formulario.add(comboTipo, c);
 
         linha++;
         c.gridx = 0; c.gridy = linha; c.weightx = 0;
@@ -157,6 +166,17 @@ public class TelaCadastroUsuario extends JFrame {
         formulario.add(criarPainelBotoes(), c);
 
         return formulario;
+    }
+
+    private JFormattedTextField criarCampoComMascara(String mascara) {
+        try {
+            MaskFormatter formatador = new MaskFormatter(mascara);
+            formatador.setPlaceholderCharacter(' ');
+            return new JFormattedTextField(formatador);
+        } catch (ParseException e) {
+            // Mascara invalida e erro de programacao, nao de uso.
+            throw new IllegalStateException("Mascara invalida: " + mascara, e);
+        }
     }
 
     private JPanel criarPainelBotoes() {
@@ -232,6 +252,7 @@ public class TelaCadastroUsuario extends JFrame {
 
     private void salvar() {
         String matricula = campoMatricula.getText();
+        String cpf = campoCpf.getText();
         String nome = campoNome.getText();
         String login = campoLogin.getText();
         String senha = new String(campoSenha.getPassword());
@@ -240,10 +261,12 @@ public class TelaCadastroUsuario extends JFrame {
 
         try {
             if (emModoEdicao) {
-                controladora.alterarUsuario(matricula, nome, login, senha, confirmacao, tipo);
+                controladora.alterarUsuario(matricula, cpf, nome, login, senha,
+                        confirmacao, tipo);
                 exibirInformacao("Usuario alterado com sucesso.");
             } else {
-                controladora.cadastrarUsuario(matricula, nome, login, senha, confirmacao, tipo);
+                controladora.cadastrarUsuario(matricula, cpf, nome, login, senha,
+                        confirmacao, tipo);
                 exibirInformacao("Usuario cadastrado com sucesso.");
             }
             limparFormulario();
@@ -308,17 +331,18 @@ public class TelaCadastroUsuario extends JFrame {
     }
 
     private void carregarUsuarios() {
-        boolean incluirInativos = caixaMostrarInativos.isSelected();
+        boolean incluirInativos = caixaMostrarInativos != null
+                && caixaMostrarInativos.isSelected();
 
         try {
             List<Usuario> usuarios = controladora.listarUsuarios(incluirInativos);
-            tableModel.setUsuarios(usuarios);
+            tableModel.setUsuarios(usuarios, controladora.getPrazoExpiracaoSenha());
             rotuloStatus.setText(usuarios.size() + (incluirInativos
                     ? " usuario(s) no total, incluindo inativos."
                     : " usuario(s) ativo(s)."));
 
         } catch (DAOException e) {
-            tableModel.setUsuarios(List.of());
+            tableModel.setUsuarios(List.of(), controladora.getPrazoExpiracaoSenha());
             rotuloStatus.setText("Falha ao carregar a lista de usuarios.");
             exibirErro(e.getMessage());
         }
@@ -332,6 +356,7 @@ public class TelaCadastroUsuario extends JFrame {
 
         campoMatricula.setText(selecionado.getMatricula());
         campoMatricula.setEditable(false);
+        campoCpf.setText(selecionado.getCpf() == null ? "" : selecionado.getCpf());
         campoNome.setText(selecionado.getNome());
         campoLogin.setText(selecionado.getLogin());
         campoSenha.setText("");
@@ -339,13 +364,19 @@ public class TelaCadastroUsuario extends JFrame {
         comboTipo.setSelectedItem(selecionado.getTipoUsuario());
 
         emModoEdicao = true;
+
+        int prazo = controladora.getPrazoExpiracaoSenha();
+        String avisoSenha = selecionado.senhaExpirada(prazo)
+                ? " A SENHA DESTE USUARIO ESTA EXPIRADA."
+                : "";
         rotuloStatus.setText("Editando o usuario " + selecionado.getMatricula()
-                + ". Deixe a senha em branco para mante-la.");
+                + ". Deixe a senha em branco para mante-la." + avisoSenha);
     }
 
     private void limparFormulario() {
         campoMatricula.setText("");
         campoMatricula.setEditable(true);
+        campoCpf.setText("");
         campoNome.setText("");
         campoLogin.setText("");
         campoSenha.setText("");

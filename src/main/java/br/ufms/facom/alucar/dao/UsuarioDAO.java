@@ -4,6 +4,7 @@ import br.ufms.facom.alucar.model.TipoUsuario;
 import br.ufms.facom.alucar.model.Usuario;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,17 +24,18 @@ import java.util.List;
 public class UsuarioDAO {
 
     private static final String COLUNAS =
-            "matricula, nome, login, senha, tipo_usuario, ativo";
+            "matricula, cpf, nome, login, senha, tipo_usuario, data_ultima_troca_senha, ativo";
 
     private static final String SQL_INSERIR =
-            "INSERT INTO usuario (" + COLUNAS + ") VALUES (?, ?, ?, ?, ?, ?)";
+            "INSERT INTO usuario (" + COLUNAS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_ATUALIZAR =
-            "UPDATE usuario SET nome = ?, login = ?, senha = ?, tipo_usuario = ? "
-            + "WHERE matricula = ?";
+            "UPDATE usuario SET cpf = ?, nome = ?, login = ?, senha = ?, tipo_usuario = ?, "
+            + "data_ultima_troca_senha = ? WHERE matricula = ?";
 
     private static final String SQL_ATUALIZAR_SEM_SENHA =
-            "UPDATE usuario SET nome = ?, login = ?, tipo_usuario = ? WHERE matricula = ?";
+            "UPDATE usuario SET cpf = ?, nome = ?, login = ?, tipo_usuario = ? "
+            + "WHERE matricula = ?";
 
     private static final String SQL_ALTERAR_SITUACAO =
             "UPDATE usuario SET ativo = ? WHERE matricula = ?";
@@ -53,16 +55,21 @@ public class UsuarioDAO {
     private static final String SQL_CONTAR_POR_LOGIN =
             "SELECT COUNT(*) FROM usuario WHERE login = ? AND matricula <> ?";
 
+    private static final String SQL_CONTAR_POR_CPF =
+            "SELECT COUNT(*) FROM usuario WHERE cpf = ? AND matricula <> ?";
+
     public void inserir(Usuario usuario) throws DAOException {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(SQL_INSERIR)) {
 
             comando.setString(1, usuario.getMatricula());
-            comando.setString(2, usuario.getNome());
-            comando.setString(3, usuario.getLogin());
-            comando.setString(4, usuario.getSenha());
-            comando.setString(5, usuario.getTipoUsuario().name());
-            comando.setBoolean(6, usuario.isAtivo());
+            comando.setString(2, usuario.getCpf());
+            comando.setString(3, usuario.getNome());
+            comando.setString(4, usuario.getLogin());
+            comando.setString(5, usuario.getSenha());
+            comando.setString(6, usuario.getTipoUsuario().name());
+            comando.setDate(7, Date.valueOf(usuario.getDataUltimaTrocaSenha()));
+            comando.setBoolean(8, usuario.isAtivo());
             comando.executeUpdate();
 
         } catch (SQLException e) {
@@ -71,9 +78,10 @@ public class UsuarioDAO {
     }
 
     /**
-     * Atualiza o usuario. Quando alterarSenha e falso, a senha atual e
-     * preservada - o atendente nao precisa redigitar a senha para corrigir
-     * apenas o nome, por exemplo.
+     * Atualiza o usuario. Quando alterarSenha e falso, a senha atual e a data
+     * da ultima troca sao preservadas - o gerente nao precisa redigitar a
+     * senha para corrigir apenas o nome, e corrigir o nome nao pode renovar
+     * o prazo de expiracao da senha (RNF03).
      *
      * A situacao (ativo) nao e alterada aqui: para isso existem os metodos
      * inativar e reativar, que representam operacoes de negocio distintas
@@ -85,15 +93,18 @@ public class UsuarioDAO {
         try (Connection conexao = ConexaoBD.obterConexao();
              PreparedStatement comando = conexao.prepareStatement(sql)) {
 
-            comando.setString(1, usuario.getNome());
-            comando.setString(2, usuario.getLogin());
+            comando.setString(1, usuario.getCpf());
+            comando.setString(2, usuario.getNome());
+            comando.setString(3, usuario.getLogin());
+
             if (alterarSenha) {
-                comando.setString(3, usuario.getSenha());
+                comando.setString(4, usuario.getSenha());
+                comando.setString(5, usuario.getTipoUsuario().name());
+                comando.setDate(6, Date.valueOf(usuario.getDataUltimaTrocaSenha()));
+                comando.setString(7, usuario.getMatricula());
+            } else {
                 comando.setString(4, usuario.getTipoUsuario().name());
                 comando.setString(5, usuario.getMatricula());
-            } else {
-                comando.setString(3, usuario.getTipoUsuario().name());
-                comando.setString(4, usuario.getMatricula());
             }
             comando.executeUpdate();
 
@@ -182,17 +193,30 @@ public class UsuarioDAO {
      * para eles tambem.
      */
     public boolean loginEmUsoPorOutro(String login, String matriculaAtual) throws DAOException {
-        try (Connection conexao = ConexaoBD.obterConexao();
-             PreparedStatement comando = conexao.prepareStatement(SQL_CONTAR_POR_LOGIN)) {
+        return contarComFiltro(SQL_CONTAR_POR_LOGIN, login, matriculaAtual,
+                "Erro ao verificar o login: ");
+    }
 
-            comando.setString(1, login);
+    /** Mesma logica do login, aplicada ao CPF (RF04). */
+    public boolean cpfEmUsoPorOutro(String cpf, String matriculaAtual) throws DAOException {
+        return contarComFiltro(SQL_CONTAR_POR_CPF, cpf, matriculaAtual,
+                "Erro ao verificar o CPF: ");
+    }
+
+    private boolean contarComFiltro(String sql, String valor, String matriculaAtual,
+                                    String prefixoDoErro) throws DAOException {
+
+        try (Connection conexao = ConexaoBD.obterConexao();
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            comando.setString(1, valor);
             comando.setString(2, matriculaAtual == null ? "" : matriculaAtual);
             try (ResultSet resultado = comando.executeQuery()) {
                 return resultado.next() && resultado.getInt(1) > 0;
             }
 
         } catch (SQLException e) {
-            throw new DAOException("Erro ao verificar o login: " + e.getMessage(), e);
+            throw new DAOException(prefixoDoErro + e.getMessage(), e);
         }
     }
 
@@ -206,10 +230,15 @@ public class UsuarioDAO {
         Usuario usuario = Usuario.criar(
                 tipo,
                 resultado.getString("matricula"),
+                resultado.getString("cpf"),
                 resultado.getString("nome"),
                 resultado.getString("login"),
                 resultado.getString("senha"));
 
+        Date dataTroca = resultado.getDate("data_ultima_troca_senha");
+        if (dataTroca != null) {
+            usuario.setDataUltimaTrocaSenha(dataTroca.toLocalDate());
+        }
         usuario.setAtivo(resultado.getBoolean("ativo"));
         return usuario;
     }

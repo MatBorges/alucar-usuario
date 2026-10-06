@@ -1,5 +1,7 @@
 package br.ufms.facom.alucar.model;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
@@ -13,9 +15,17 @@ import java.util.Objects;
 public abstract class Usuario {
 
     private String matricula;
+    private String cpf;
     private String nome;
     private String login;
     private String senha;
+
+    /**
+     * Data da ultima troca de senha. Base para o RNF03: o sistema compara
+     * esta data com o prazo de expiracao configurado para decidir se a
+     * redefinicao e obrigatoria.
+     */
+    private LocalDate dataUltimaTrocaSenha = LocalDate.now();
 
     /**
      * Exclusao logica: um usuario inativo deixa de aparecer nas listagens e
@@ -27,8 +37,9 @@ public abstract class Usuario {
     protected Usuario() {
     }
 
-    protected Usuario(String matricula, String nome, String login, String senha) {
+    protected Usuario(String matricula, String cpf, String nome, String login, String senha) {
         this.matricula = matricula;
+        this.cpf = cpf;
         this.nome = nome;
         this.login = login;
         this.senha = senha;
@@ -44,13 +55,13 @@ public abstract class Usuario {
      * Fabrica usada pelo DAO ao ler uma linha da tabela usuario: converte o
      * valor do discriminador na subclasse correspondente.
      */
-    public static Usuario criar(TipoUsuario tipo, String matricula, String nome,
-                                String login, String senha) {
+    public static Usuario criar(TipoUsuario tipo, String matricula, String cpf,
+                                String nome, String login, String senha) {
         Objects.requireNonNull(tipo, "Tipo de usuario nao informado");
         return switch (tipo) {
-            case GERENTE -> new Gerente(matricula, nome, login, senha);
-            case ATENDENTE -> new Atendente(matricula, nome, login, senha);
-            case MECANICO -> new Mecanico(matricula, nome, login, senha);
+            case GERENTE -> new Gerente(matricula, cpf, nome, login, senha);
+            case ATENDENTE -> new Atendente(matricula, cpf, nome, login, senha);
+            case MECANICO -> new Mecanico(matricula, cpf, nome, login, senha);
         };
     }
 
@@ -63,12 +74,27 @@ public abstract class Usuario {
                 && this.senha.equals(senhaInformada);
     }
 
-    public boolean isAtivo() {
-        return ativo;
+    /**
+     * RNF03 - indica se a senha ultrapassou o prazo de validade configurado.
+     * Um prazo menor ou igual a zero desliga a expiracao.
+     */
+    public boolean senhaExpirada(int prazoEmDias) {
+        if (prazoEmDias <= 0 || dataUltimaTrocaSenha == null) {
+            return false;
+        }
+        return LocalDate.now().isAfter(dataUltimaTrocaSenha.plusDays(prazoEmDias));
     }
 
-    public void setAtivo(boolean ativo) {
-        this.ativo = ativo;
+    /**
+     * Quantos dias faltam para a senha expirar. Devolve um numero negativo
+     * quando ela ja esta vencida.
+     */
+    public long diasAteExpirarSenha(int prazoEmDias) {
+        if (prazoEmDias <= 0 || dataUltimaTrocaSenha == null) {
+            return Long.MAX_VALUE;
+        }
+        return ChronoUnit.DAYS.between(LocalDate.now(),
+                dataUltimaTrocaSenha.plusDays(prazoEmDias));
     }
 
     public String getMatricula() {
@@ -77,6 +103,14 @@ public abstract class Usuario {
 
     public void setMatricula(String matricula) {
         this.matricula = matricula;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getNome() {
@@ -101,6 +135,22 @@ public abstract class Usuario {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public LocalDate getDataUltimaTrocaSenha() {
+        return dataUltimaTrocaSenha;
+    }
+
+    public void setDataUltimaTrocaSenha(LocalDate dataUltimaTrocaSenha) {
+        this.dataUltimaTrocaSenha = dataUltimaTrocaSenha;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 
     @Override

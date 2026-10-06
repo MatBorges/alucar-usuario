@@ -10,8 +10,8 @@ public class Atendente extends Usuario {
         super();
     }
 
-    public Atendente(String matricula, String nome, String login, String senha) {
-        super(matricula, nome, login, senha);
+    public Atendente(String matricula, String cpf, String nome, String login, String senha) {
+        super(matricula, cpf, nome, login, senha);
     }
 
     @Override

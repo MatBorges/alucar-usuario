@@ -1,6 +1,7 @@
 package br.ufms.facom.alucar.view;
 
 import br.ufms.facom.alucar.model.Usuario;
+import br.ufms.facom.alucar.util.CpfUtil;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -13,12 +14,16 @@ import java.util.List;
 public class UsuarioTableModel extends AbstractTableModel {
 
     private static final String[] COLUNAS =
-            {"Matricula", "Nome", "Login", "Tipo", "Situacao"};
+            {"Matricula", "CPF", "Nome", "Login", "Tipo", "Senha", "Situacao"};
 
     private List<Usuario> usuarios = new ArrayList<>();
 
-    public void setUsuarios(List<Usuario> usuarios) {
+    /** Prazo do RNF03, usado para calcular a coluna "Senha". */
+    private int prazoExpiracaoSenha;
+
+    public void setUsuarios(List<Usuario> usuarios, int prazoExpiracaoSenha) {
         this.usuarios = usuarios == null ? new ArrayList<>() : usuarios;
+        this.prazoExpiracaoSenha = prazoExpiracaoSenha;
         fireTableDataChanged();
     }
 
@@ -54,11 +59,28 @@ public class UsuarioTableModel extends AbstractTableModel {
         Usuario usuario = usuarios.get(linha);
         return switch (coluna) {
             case 0 -> usuario.getMatricula();
-            case 1 -> usuario.getNome();
-            case 2 -> usuario.getLogin();
-            case 3 -> usuario.getTipoUsuario().getDescricao();
-            case 4 -> usuario.isAtivo() ? "Ativo" : "Inativo";
+            case 1 -> CpfUtil.formatar(usuario.getCpf());
+            case 2 -> usuario.getNome();
+            case 3 -> usuario.getLogin();
+            case 4 -> usuario.getTipoUsuario().getDescricao();
+            case 5 -> descreverSituacaoDaSenha(usuario);
+            case 6 -> usuario.isAtivo() ? "Ativo" : "Inativo";
             default -> "";
         };
+    }
+
+    /** RNF03 - traduz o prazo restante em um texto curto para a tabela. */
+    private String descreverSituacaoDaSenha(Usuario usuario) {
+        if (prazoExpiracaoSenha <= 0) {
+            return "Sem prazo";
+        }
+        if (usuario.senhaExpirada(prazoExpiracaoSenha)) {
+            return "Expirada";
+        }
+        long dias = usuario.diasAteExpirarSenha(prazoExpiracaoSenha);
+        if (dias <= 7) {
+            return "Expira em " + dias + "d";
+        }
+        return "Valida";
     }
 }
