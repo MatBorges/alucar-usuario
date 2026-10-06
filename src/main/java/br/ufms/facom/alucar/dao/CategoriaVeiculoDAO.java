@@ -12,25 +12,25 @@ import java.util.List;
 
 public class CategoriaVeiculoDAO {
 
-    private static final String COLUNAS = "nome, descricao, valor_base_diaria, ativo";
+    private static final String COLUNAS = "nome_categoria, descricao, valor_base_diaria, ativo";
 
     private static final String SQL_INSERIR =
             "INSERT INTO categoria_veiculo (" + COLUNAS + ") VALUES (?, ?, ?, ?)";
 
     private static final String SQL_ATUALIZAR =
-            "UPDATE categoria_veiculo SET descricao = ?, valor_base_diaria = ? WHERE nome = ?";
+            "UPDATE categoria_veiculo SET descricao = ?, valor_base_diaria = ? WHERE nome_categoria = ?";
 
     private static final String SQL_ALTERAR_SITUACAO =
-            "UPDATE categoria_veiculo SET ativo = ? WHERE nome = ?";
+            "UPDATE categoria_veiculo SET ativo = ? WHERE nome_categoria = ?";
 
     private static final String SQL_LISTAR_ATIVAS =
-            "SELECT " + COLUNAS + " FROM categoria_veiculo WHERE ativo = TRUE ORDER BY nome";
+            "SELECT " + COLUNAS + " FROM categoria_veiculo WHERE ativo = TRUE ORDER BY nome_categoria";
 
     private static final String SQL_LISTAR_TODAS =
-            "SELECT " + COLUNAS + " FROM categoria_veiculo ORDER BY ativo DESC, nome";
+            "SELECT " + COLUNAS + " FROM categoria_veiculo ORDER BY ativo DESC, nome_categoria";
 
     private static final String SQL_BUSCAR_POR_NOME =
-            "SELECT " + COLUNAS + " FROM categoria_veiculo WHERE nome = ?";
+            "SELECT " + COLUNAS + " FROM categoria_veiculo WHERE nome_categoria = ?";
 
     private static final String SQL_CONTAR_VEICULOS =
             "SELECT COUNT(*) FROM veiculo WHERE nome_categoria = ?";
@@ -137,7 +137,7 @@ public class CategoriaVeiculoDAO {
 
     private CategoriaVeiculo montarCategoria(ResultSet resultado) throws SQLException {
         CategoriaVeiculo categoria = new CategoriaVeiculo(
-                resultado.getString("nome"),
+                resultado.getString("nome_categoria"),
                 resultado.getString("descricao"),
                 resultado.getBigDecimal("valor_base_diaria"));
 

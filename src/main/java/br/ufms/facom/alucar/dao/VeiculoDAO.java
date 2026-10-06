@@ -17,10 +17,10 @@ public class VeiculoDAO {
     private static final String SELECT_BASE =
             "SELECT v.placa, v.renavam, v.modelo, v.marca, v.ano_fabricacao, "
             + "v.km_atual, v.valor_diaria, v.status, "
-            + "c.nome AS categoria_nome, c.descricao AS categoria_descricao, "
+            + "c.nome_categoria AS categoria_nome, c.descricao AS categoria_descricao, "
             + "c.valor_base_diaria AS categoria_valor, c.ativo AS categoria_ativo "
             + "FROM veiculo v "
-            + "JOIN categoria_veiculo c ON c.nome = v.nome_categoria ";
+            + "JOIN categoria_veiculo c ON c.nome_categoria = v.nome_categoria ";
 
     private static final String SQL_INSERIR =
             "INSERT INTO veiculo (placa, renavam, modelo, marca, ano_fabricacao, "
