@@ -38,61 +38,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.2812646211722023" />
-      <entry key="MS500" value="1.775930854274856" />
-      <entry key="S2" value="1.9385464155421293" />
-      <entry key="S5" value="1.9749499069332734" />
-      <entry key="S10" value="1.9873955188283365" />
-      <entry key="S30" value="2.012366775051186" />
-      <entry key="S60" value="2.970349677114685" />
-      <entry key="M2" value="9.540578398546197" />
-      <entry key="M5" value="27.89175112740266" />
-      <entry key="M10" value="41.572325005217174" />
-      <entry key="M15" value="49.19206811171082" />
-      <entry key="M30" value="68.45813703304738" />
-      <entry key="H1" value="104.39276358264505" />
-      <entry key="H2" value="150.18256720496225" />
-      <entry key="H4" value="189.54195516237837" />
-      <entry key="D1" value="236.54151790030718" />
-      <entry key="W1" value="246.31473728085854" />
+      <entry key="MS100" value="1.0000004151989008" />
+      <entry key="MS500" value="1.1187891493133575" />
+      <entry key="S2" value="2.332481133655148" />
+      <entry key="S5" value="3.167614991768525" />
+      <entry key="S10" value="3.5499152214902856" />
+      <entry key="S30" value="3.8480766901659433" />
+      <entry key="S60" value="3.9994244201615037" />
+      <entry key="M2" value="4.2455562018467266" />
+      <entry key="M5" value="5.796674065675432" />
+      <entry key="M10" value="13.427249927758682" />
+      <entry key="M15" value="22.12431148668267" />
+      <entry key="M30" value="45.49637006106946" />
+      <entry key="H1" value="85.33099899658895" />
+      <entry key="H2" value="136.75592849062" />
+      <entry key="H4" value="182.5373348340743" />
+      <entry key="D1" value="238.9766326256559" />
+      <entry key="W1" value="250.93141392236114" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
       <entry key="MS500" value="0.0" />
       <entry key="S2" value="0.0" />
-      <entry key="S5" value="1.9230187587327295E-211" />
-      <entry key="S10" value="4.429961360576177E-106" />
-      <entry key="S30" value="9.704580790903817E-36" />
-      <entry key="S60" value="4.721341475480099E-18" />
-      <entry key="M2" value="3.6192966796407143E-9" />
-      <entry key="M5" value="8.044506043580484E-4" />
-      <entry key="M10" value="0.04904602880064946" />
-      <entry key="M15" value="0.19317585237161045" />
-      <entry key="M30" value="0.7611297896295698" />
-      <entry key="H1" value="1.511020736283771" />
-      <entry key="H2" value="2.129074955792763" />
-      <entry key="H4" value="2.5272888501873236" />
-      <entry key="D1" value="2.91547970669031" />
-      <entry key="W1" value="2.9877772594423635" />
+      <entry key="S5" value="3.3354389072193936E-293" />
+      <entry key="S10" value="5.83424513901505E-147" />
+      <entry key="S30" value="2.2917734903943583E-49" />
+      <entry key="S60" value="7.255425183887817E-25" />
+      <entry key="M2" value="1.4188056599171665E-12" />
+      <entry key="M5" value="3.4899473362676475E-5" />
+      <entry key="M10" value="0.010215593295350406" />
+      <entry key="M15" value="0.06787752539967823" />
+      <entry key="M30" value="0.45117528553210745" />
+      <entry key="H1" value="1.1633588963358386" />
+      <entry key="H2" value="1.868153667570983" />
+      <entry key="H4" value="2.367367624919117" />
+      <entry key="D1" value="2.8838886865151445" />
+      <entry key="W1" value="2.9831307213717597" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.8767713224302254" />
-      <entry key="MS500" value="1.149316674873541" />
-      <entry key="S2" value="1.6405095619587622" />
-      <entry key="S5" value="1.8375667746269209" />
-      <entry key="S10" value="1.915306640288952" />
-      <entry key="S30" value="1.9875432329116358" />
-      <entry key="S60" value="2.957800510661976" />
-      <entry key="M2" value="9.534151375088591" />
-      <entry key="M5" value="27.88982350081804" />
-      <entry key="M10" value="41.619615369791504" />
-      <entry key="M15" value="49.3832394024552" />
-      <entry key="M30" value="69.21582235591963" />
-      <entry key="H1" value="105.89960031678983" />
-      <entry key="H2" value="152.30819864063687" />
-      <entry key="H4" value="192.0670083765979" />
-      <entry key="D1" value="239.45653172781346" />
-      <entry key="W1" value="249.3024453523757" />
+      <entry key="MS100" value="6.560104933462346E-6" />
+      <entry key="MS500" value="0.16877795838258464" />
+      <entry key="S2" value="1.5778507569700801" />
+      <entry key="S5" value="2.6918761902545905" />
+      <entry key="S10" value="3.2658214506824645" />
+      <entry key="S30" value="3.740407196239287" />
+      <entry key="S60" value="3.942217115359748" />
+      <entry key="M2" value="4.214260326506841" />
+      <entry key="M5" value="5.782541744103685" />
+      <entry key="M10" value="13.429671683690245" />
+      <entry key="M15" value="22.18642724686894" />
+      <entry key="M30" value="45.94291773913735" />
+      <entry key="H1" value="86.48982846755663" />
+      <entry key="H2" value="138.6204026853918" />
+      <entry key="H4" value="184.90227831503904" />
+      <entry key="D1" value="241.8600053461122" />
+      <entry key="W1" value="253.91446768355613" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -114,7 +114,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/gerenciar-categoria-veiculo",
+    "git-widget-placeholder": "feature/gerenciar-veiculo",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/DEV/TRABALHO PRATICO APSOO/alucar-usuario",
@@ -124,6 +124,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true"
   }
 }]]></component>
@@ -218,7 +219,36 @@
           <line>45</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java</url>
+          <line>227</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java</url>
+          <line>231</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Veiculo.java</url>
+          <line>50</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Veiculo.java</url>
+          <line>128</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/StatusVeiculo.java</url>
+          <line>24</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

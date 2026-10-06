@@ -22,17 +22,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.sql.Connection;
 
-/**
- * Janela principal do sistema.
- *
- * Serve como ponto de navegacao: cada opcao abre a tela do caso de uso
- * correspondente. Nenhuma regra de negocio passa por aqui.
- *
- * A barra inferior mostra em qual banco o sistema esta operando. Isso
- * importa porque a ConexaoBD cai para um MySQL local quando o TiDB Cloud
- * nao responde - sem esse indicador, seria possivel trabalhar o dia inteiro
- * sobre o banco errado sem perceber.
- */
+
 public class TelaPrincipal extends JFrame {
 
     private static final Color AZUL_CABECALHO = new Color(31, 95, 145);
@@ -57,8 +47,8 @@ public class TelaPrincipal extends JFrame {
         add(criarPainelDeAtalhos(), BorderLayout.CENTER);
         add(criarRodape(), BorderLayout.SOUTH);
 
-        setSize(560, 440);
-        setMinimumSize(new Dimension(500, 400));
+        setSize(560, 500);
+        setMinimumSize(new Dimension(500, 460));
         setLocationRelativeTo(null);
     }
 
@@ -76,10 +66,14 @@ public class TelaPrincipal extends JFrame {
         JMenuItem itemCategorias = new JMenuItem("Categorias de Veiculo");
         itemCategorias.addActionListener(e -> abrirCadastroCategorias());
 
+        JMenuItem itemVeiculos = new JMenuItem("Veiculos");
+        itemVeiculos.addActionListener(e -> abrirCadastroVeiculos());
+
         menuCadastros.add(itemClientes);
         menuCadastros.add(itemUsuarios);
         menuCadastros.addSeparator();
         menuCadastros.add(itemCategorias);
+        menuCadastros.add(itemVeiculos);
 
         JMenu menuSistema = new JMenu("Sistema");
 
@@ -126,6 +120,9 @@ public class TelaPrincipal extends JFrame {
         c.weightx = 1;
         c.gridx = 0;
 
+
+//        BOTÕES DO MENU
+
         JButton botaoClientes = new JButton("Cadastro de Clientes");
         botaoClientes.setPreferredSize(new Dimension(240, 44));
         botaoClientes.addActionListener(e -> abrirCadastroClientes());
@@ -138,9 +135,14 @@ public class TelaPrincipal extends JFrame {
         botaoCategorias.setPreferredSize(new Dimension(240, 44));
         botaoCategorias.addActionListener(e -> abrirCadastroCategorias());
 
+        JButton botaoVeiculos = new JButton("Cadastro de Veiculos");
+        botaoVeiculos.setPreferredSize(new Dimension(240, 44));
+        botaoVeiculos.addActionListener(e -> abrirCadastroVeiculos());
+
         c.gridy = 0; painel.add(botaoClientes, c);
         c.gridy = 1; painel.add(botaoUsuarios, c);
         c.gridy = 2; painel.add(botaoCategorias, c);
+        c.gridy = 3; painel.add(botaoVeiculos, c);
 
         return painel;
     }
@@ -153,7 +155,7 @@ public class TelaPrincipal extends JFrame {
         rotuloConexao.setHorizontalAlignment(SwingConstants.CENTER);
         rotuloConexao.setFont(rotuloConexao.getFont().deriveFont(Font.PLAIN, 12f));
 
-        JLabel rotuloGrupo = new JLabel("Grupo 3 - Analise e Projeto de Software OO");
+        JLabel rotuloGrupo = new JLabel("Grupo 3");
         rotuloGrupo.setHorizontalAlignment(SwingConstants.CENTER);
         rotuloGrupo.setFont(rotuloGrupo.getFont().deriveFont(Font.PLAIN, 11f));
 
@@ -170,7 +172,7 @@ public class TelaPrincipal extends JFrame {
      * Na Event Dispatch Thread isso congelaria a janela.
      */
     private void verificarConexao() {
-        rotuloConexao.setText("Verificando conexao com o banco...");
+        rotuloConexao.setText("Verificando conexao..");
         rotuloConexao.setForeground(Color.GRAY);
 
         new SwingWorker<String, Void>() {
@@ -213,7 +215,7 @@ public class TelaPrincipal extends JFrame {
         }.execute();
     }
 
-    /** As mensagens da ConexaoBD tem varias linhas; na barra cabe so a primeira. */
+
     private String primeiraLinha(String mensagem) {
         if (mensagem == null) {
             return "causa desconhecida";
@@ -232,5 +234,9 @@ public class TelaPrincipal extends JFrame {
 
     private void abrirCadastroCategorias() {
         new TelaCadastroCategoria().setVisible(true);
+    }
+
+    private void abrirCadastroVeiculos() {
+        new TelaCadastroVeiculo().setVisible(true);
     }
 }
