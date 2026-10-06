@@ -57,8 +57,8 @@ public class TelaPrincipal extends JFrame {
         add(criarPainelDeAtalhos(), BorderLayout.CENTER);
         add(criarRodape(), BorderLayout.SOUTH);
 
-        setSize(560, 380);
-        setMinimumSize(new Dimension(500, 340));
+        setSize(560, 440);
+        setMinimumSize(new Dimension(500, 400));
         setLocationRelativeTo(null);
     }
 
@@ -73,8 +73,13 @@ public class TelaPrincipal extends JFrame {
         JMenuItem itemUsuarios = new JMenuItem("Usuarios");
         itemUsuarios.addActionListener(e -> abrirCadastroUsuarios());
 
+        JMenuItem itemCategorias = new JMenuItem("Categorias de Veiculo");
+        itemCategorias.addActionListener(e -> abrirCadastroCategorias());
+
         menuCadastros.add(itemClientes);
         menuCadastros.add(itemUsuarios);
+        menuCadastros.addSeparator();
+        menuCadastros.add(itemCategorias);
 
         JMenu menuSistema = new JMenu("Sistema");
 
@@ -129,8 +134,13 @@ public class TelaPrincipal extends JFrame {
         botaoUsuarios.setPreferredSize(new Dimension(240, 44));
         botaoUsuarios.addActionListener(e -> abrirCadastroUsuarios());
 
+        JButton botaoCategorias = new JButton("Categorias de Veiculo");
+        botaoCategorias.setPreferredSize(new Dimension(240, 44));
+        botaoCategorias.addActionListener(e -> abrirCadastroCategorias());
+
         c.gridy = 0; painel.add(botaoClientes, c);
         c.gridy = 1; painel.add(botaoUsuarios, c);
+        c.gridy = 2; painel.add(botaoCategorias, c);
 
         return painel;
     }
@@ -218,5 +228,9 @@ public class TelaPrincipal extends JFrame {
 
     private void abrirCadastroUsuarios() {
         new TelaCadastroUsuario().setVisible(true);
+    }
+
+    private void abrirCadastroCategorias() {
+        new TelaCadastroCategoria().setVisible(true);
     }
 }

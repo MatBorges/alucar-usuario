@@ -23,7 +23,7 @@ public final class ConexaoBD {
     private static final String BANCO = obterValor("ALUCAR_DB_NAME", "alucar");
     private static final String USUARIO = obterValor("ALUCAR_DB_USER", "37xCGj4XKVsW6YU.root");
 //    senha abaixo errada pois eu Mateus estou usando o banco local
-    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8e");
+    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8");
 
     /** O TiDB Cloud recusa conexao sem TLS: sslMode=DISABLED nao funciona la. */
     private static final String SSL_MODE = obterValor("ALUCAR_DB_SSL_MODE", "VERIFY_IDENTITY");

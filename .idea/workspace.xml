@@ -6,22 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="11232b5e-fc75-470b-badc-3977dd29aac0" name="Changes" comment="Adicionada a feature de cadastro de Cliente mais a feature de conexão ao TiDB">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraCliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraCliente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraUsuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraUsuario.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ClienteDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ClienteDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ConexaoBD.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ConexaoBD.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/DAOException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/DAOException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/UsuarioDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/UsuarioDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Atendente.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Atendente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Cliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Cliente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Gerente.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Gerente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Mecanico.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Mecanico.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/TipoUsuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/TipoUsuario.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Usuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Usuario.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/util/CpfUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/util/CpfUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/util/ParametrosSistema.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/util/ParametrosSistema.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/util/SenhaUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/util/SenhaUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/schema.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,61 +38,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0121580742888754" />
-      <entry key="MS500" value="1.5745082854276917" />
-      <entry key="S2" value="3.171042867066329" />
-      <entry key="S5" value="4.855224984730322" />
-      <entry key="S10" value="7.072687708607804" />
-      <entry key="S30" value="12.29188825044064" />
-      <entry key="S60" value="15.556780624546008" />
-      <entry key="M2" value="18.322692132410094" />
-      <entry key="M5" value="21.32893128716031" />
-      <entry key="M10" value="26.357684642724607" />
-      <entry key="M15" value="33.28238427181053" />
-      <entry key="M30" value="56.36051519867877" />
-      <entry key="H1" value="91.60522436096514" />
-      <entry key="H2" value="126.86959222289593" />
-      <entry key="H4" value="152.8154418084783" />
-      <entry key="D1" value="180.61495719203896" />
-      <entry key="W1" value="186.06924831361835" />
+      <entry key="MS100" value="1.2812646211722023" />
+      <entry key="MS500" value="1.775930854274856" />
+      <entry key="S2" value="1.9385464155421293" />
+      <entry key="S5" value="1.9749499069332734" />
+      <entry key="S10" value="1.9873955188283365" />
+      <entry key="S30" value="2.012366775051186" />
+      <entry key="S60" value="2.970349677114685" />
+      <entry key="M2" value="9.540578398546197" />
+      <entry key="M5" value="27.89175112740266" />
+      <entry key="M10" value="41.572325005217174" />
+      <entry key="M15" value="49.19206811171082" />
+      <entry key="M30" value="68.45813703304738" />
+      <entry key="H1" value="104.39276358264505" />
+      <entry key="H2" value="150.18256720496225" />
+      <entry key="H4" value="189.54195516237837" />
+      <entry key="D1" value="236.54151790030718" />
+      <entry key="W1" value="246.31473728085854" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="6.440566304283192E-206" />
-      <entry key="MS500" value="9.157666238192254E-42" />
-      <entry key="S2" value="5.5010577326830734E-11" />
-      <entry key="S5" value="7.874483452412353E-5" />
-      <entry key="S10" value="0.008964358475067586" />
-      <entry key="S30" value="0.26445383674476775" />
-      <entry key="S60" value="0.779384848104894" />
-      <entry key="M2" value="1.4705082232528648" />
-      <entry key="M5" value="2.233760934943193" />
-      <entry key="M10" value="2.5844759992340482" />
-      <entry key="M15" value="2.7151798810716348" />
-      <entry key="M30" value="2.853524494537781" />
-      <entry key="H1" value="2.92571397923876" />
-      <entry key="H2" value="2.9625908188475503" />
-      <entry key="H4" value="2.9812283463602114" />
-      <entry key="D1" value="2.9968620322298545" />
-      <entry key="W1" value="2.999551489111292" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="1.9230187587327295E-211" />
+      <entry key="S10" value="4.429961360576177E-106" />
+      <entry key="S30" value="9.704580790903817E-36" />
+      <entry key="S60" value="4.721341475480099E-18" />
+      <entry key="M2" value="3.6192966796407143E-9" />
+      <entry key="M5" value="8.044506043580484E-4" />
+      <entry key="M10" value="0.04904602880064946" />
+      <entry key="M15" value="0.19317585237161045" />
+      <entry key="M30" value="0.7611297896295698" />
+      <entry key="H1" value="1.511020736283771" />
+      <entry key="H2" value="2.129074955792763" />
+      <entry key="H4" value="2.5272888501873236" />
+      <entry key="D1" value="2.91547970669031" />
+      <entry key="W1" value="2.9877772594423635" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9461341687632457" />
-      <entry key="MS500" value="1.2371388639880918" />
-      <entry key="S2" value="2.849834600786415" />
-      <entry key="S5" value="4.635043731368026" />
-      <entry key="S10" value="6.897914810530059" />
-      <entry key="S30" value="12.419131204161136" />
-      <entry key="S60" value="16.23937141674803" />
-      <entry key="M2" value="19.732116024197442" />
-      <entry key="M5" value="23.533123254112635" />
-      <entry key="M10" value="28.92416604303937" />
-      <entry key="M15" value="35.9828586518711" />
-      <entry key="M30" value="59.20295596410807" />
-      <entry key="H1" value="94.52331435679709" />
-      <entry key="H2" value="129.82756381856498" />
-      <entry key="H4" value="155.79410623923445" />
-      <entry key="D1" value="183.6113510066557" />
-      <entry key="W1" value="189.06873183091886" />
+      <entry key="MS100" value="0.8767713224302254" />
+      <entry key="MS500" value="1.149316674873541" />
+      <entry key="S2" value="1.6405095619587622" />
+      <entry key="S5" value="1.8375667746269209" />
+      <entry key="S10" value="1.915306640288952" />
+      <entry key="S30" value="1.9875432329116358" />
+      <entry key="S60" value="2.957800510661976" />
+      <entry key="M2" value="9.534151375088591" />
+      <entry key="M5" value="27.88982350081804" />
+      <entry key="M10" value="41.619615369791504" />
+      <entry key="M15" value="49.3832394024552" />
+      <entry key="M30" value="69.21582235591963" />
+      <entry key="H1" value="105.89960031678983" />
+      <entry key="H2" value="152.30819864063687" />
+      <entry key="H4" value="192.0670083765979" />
+      <entry key="D1" value="239.45653172781346" />
+      <entry key="W1" value="249.3024453523757" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -128,7 +114,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "feature/gerenciar-categoria-veiculo",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/DEV/TRABALHO PRATICO APSOO/alucar-usuario",
@@ -216,6 +202,21 @@
           <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Cliente.java</url>
           <line>139</line>
           <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraCategoriaVeiculo.java</url>
+          <line>18</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/CategoriaVeiculo.java</url>
+          <line>29</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/CategoriaVeiculo.java</url>
+          <line>45</line>
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

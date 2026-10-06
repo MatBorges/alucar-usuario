@@ -67,6 +67,22 @@ CREATE TABLE IF NOT EXISTS cliente (
 );
 
 -- ------------------------------------------------------------
+-- RF03 - Categorias de veiculo
+-- O nome e a chave natural, conforme o mapeamento objeto-relacional
+-- do grupo. A tabela veiculo tera FK apontando para ele, por isso o
+-- nome nao e alteravel pela aplicacao.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS categoria_veiculo (
+    nome                VARCHAR(50)    NOT NULL,
+    descricao           VARCHAR(200),
+    valor_base_diaria   NUMERIC(10,2)  NOT NULL,
+    ativo               BOOLEAN        NOT NULL DEFAULT TRUE,
+
+    CONSTRAINT pk_categoria_veiculo PRIMARY KEY (nome),
+    CONSTRAINT ck_categoria_valor CHECK (valor_base_diaria > 0)
+);
+
+-- ------------------------------------------------------------
 -- MIGRACAO - execute apenas se as tabelas ja existiam sem as
 -- colunas novas. O MySQL nao aceita ADD COLUMN IF NOT EXISTS,
 -- entao rodar duas vezes gera erro de coluna duplicada, que pode
@@ -110,3 +126,22 @@ SELECT '0001',
        CURRENT_DATE,
        TRUE
 WHERE NOT EXISTS (SELECT 1 FROM usuario WHERE matricula = '0001');
+
+-- ------------------------------------------------------------
+-- Categorias iniciais, para que a frota possa ser cadastrada.
+-- ------------------------------------------------------------
+INSERT INTO categoria_veiculo (nome, descricao, valor_base_diaria, ativo)
+SELECT 'Compacto', 'Veiculos de pequeno porte, economicos, ate 4 passageiros', 120.00, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM categoria_veiculo WHERE nome = 'Compacto');
+
+INSERT INTO categoria_veiculo (nome, descricao, valor_base_diaria, ativo)
+SELECT 'Sedan', 'Veiculos de porte medio, porta-malas amplo, 5 passageiros', 180.00, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM categoria_veiculo WHERE nome = 'Sedan');
+
+INSERT INTO categoria_veiculo (nome, descricao, valor_base_diaria, ativo)
+SELECT 'SUV', 'Veiculos altos, tracao reforcada, 5 a 7 passageiros', 260.00, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM categoria_veiculo WHERE nome = 'SUV');
+
+INSERT INTO categoria_veiculo (nome, descricao, valor_base_diaria, ativo)
+SELECT 'Utilitario', 'Veiculos de carga, picapes e furgoes', 300.00, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM categoria_veiculo WHERE nome = 'Utilitario');
