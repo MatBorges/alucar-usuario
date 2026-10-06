@@ -18,26 +18,27 @@ public final class ConexaoBD {
 //    s: TsZLi6DML7XLXo8e
 
     private static final String HOST =
-            obterValor("ALUCAR_DB_HOST", "gateway01.sa-east-1.prod.aws.tidbcloud.com");
+            obterValor("ALUCAR_DB_HOST", "gateway01.ap-northeast-1.prod.aws.tidbcloud.com");
     private static final String PORTA = obterValor("ALUCAR_DB_PORT", "4000");
     private static final String BANCO = obterValor("ALUCAR_DB_NAME", "alucar");
-    private static final String USUARIO = obterValor("ALUCAR_DB_USER", "37xCGj4XKVsW6YU.root");
-//    senha abaixo errada pois eu Mateus estou usando o banco local
-    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8e");
+    private static final String USUARIO = obterValor("ALUCAR_DB_USER", "EkuJSQGHMQUgwcb.root");
+    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "8tx4t7P9CksUfj0H");
 
     /** O TiDB Cloud recusa conexao sem TLS: sslMode=DISABLED nao funciona la. */
     private static final String SSL_MODE = obterValor("ALUCAR_DB_SSL_MODE", "VERIFY_IDENTITY");
 
     // ---------- Conexao MySQL local ----------
 
+    private static final boolean PREFERIR_LOCAL =
+            Boolean.parseBoolean(obterValor("ALUCAR_PREFERIR_LOCAL", "true"));
+
     private static final boolean USAR_CONTINGENCIA =
-//            deixar "true" para tentar conectar no banco local
             Boolean.parseBoolean(obterValor("ALUCAR_DB_FALLBACK", "true"));
 
     private static final String HOST_LOCAL = obterValor("ALUCAR_DB_LOCAL_HOST", "localhost");
-    private static final String PORTA_LOCAL = obterValor("ALUCAR_DB_LOCAL_PORT", "3434");
+    private static final String PORTA_LOCAL = obterValor("ALUCAR_DB_LOCAL_PORT", "3306");
     private static final String USUARIO_LOCAL = obterValor("ALUCAR_DB_LOCAL_USER", "root");
-    private static final String SENHA_LOCAL = obterValor("ALUCAR_DB_LOCAL_PASSWORD", "123");
+    private static final String SENHA_LOCAL = obterValor("ALUCAR_DB_LOCAL_PASSWORD", "Pedro561561561!");
 
 
 
@@ -47,43 +48,56 @@ public final class ConexaoBD {
     private static final String URL_CONTINGENCIA =
             montarUrl(HOST_LOCAL, PORTA_LOCAL, "DISABLED");
 
-    /** Fica true depois que a aplicacao cai para o banco local. */
+    /** Fica true depois que a aplicacao opera sobre o banco local. */
     private static boolean usandoContingencia = false;
 
     private ConexaoBD() {
     }
 
     public static Connection obterConexao() throws DAOException {
-        try {
-            return DriverManager.getConnection(URL_PRINCIPAL, USUARIO, SENHA);
-
-        } catch (SQLException falhaPrincipal) {
-
-            if (!USAR_CONTINGENCIA) {
-                throw new DAOException(montarMensagemDeFalha(falhaPrincipal), falhaPrincipal);
-            }
-
+        if (PREFERIR_LOCAL) {
             try {
-                Connection conexaoLocal =
-                        DriverManager.getConnection(URL_CONTINGENCIA, USUARIO_LOCAL, SENHA_LOCAL);
-                avisarUsoDaContingencia(falhaPrincipal);
-                return conexaoLocal;
-
+                Connection conn = DriverManager.getConnection(URL_CONTINGENCIA, USUARIO_LOCAL, SENHA_LOCAL);
+                usandoContingencia = true;
+                return conn;
             } catch (SQLException falhaLocal) {
-                throw new DAOException(montarMensagemDasDuasFalhas(falhaPrincipal, falhaLocal),
-                        falhaPrincipal);
+                try {
+                    Connection conn = DriverManager.getConnection(URL_PRINCIPAL, USUARIO, SENHA);
+                    usandoContingencia = false;
+                    return conn;
+                } catch (SQLException falhaPrincipal) {
+                    throw new DAOException(montarMensagemDasDuasFalhas(falhaPrincipal, falhaLocal), falhaPrincipal);
+                }
+            }
+        } else {
+            try {
+                Connection conn = DriverManager.getConnection(URL_PRINCIPAL, USUARIO, SENHA);
+                usandoContingencia = false;
+                return conn;
+            } catch (SQLException falhaPrincipal) {
+                if (!USAR_CONTINGENCIA) {
+                    throw new DAOException(montarMensagemDeFalha(falhaPrincipal), falhaPrincipal);
+                }
+                try {
+                    Connection conexaoLocal =
+                            DriverManager.getConnection(URL_CONTINGENCIA, USUARIO_LOCAL, SENHA_LOCAL);
+                    avisarUsoDaContingencia(falhaPrincipal);
+                    return conexaoLocal;
+                } catch (SQLException falhaLocal) {
+                    throw new DAOException(montarMensagemDasDuasFalhas(falhaPrincipal, falhaLocal), falhaPrincipal);
+                }
             }
         }
     }
 
-    /** Indica se a aplicacao esta operando sobre o banco local de contingencia. */
+    /** Indica se a aplicacao esta operando sobre o banco local. */
     public static boolean estaUsandoContingencia() {
         return usandoContingencia;
     }
 
     public static String descreverConexaoAtiva() {
         return usandoContingencia
-                ? "MySQL local em " + HOST_LOCAL + ":" + PORTA_LOCAL + " (contingencia)"
+                ? "MySQL local em " + HOST_LOCAL + ":" + PORTA_LOCAL
                 : "TiDB Cloud em " + HOST + ":" + PORTA;
     }
 
@@ -91,10 +105,10 @@ public final class ConexaoBD {
         StringBuilder url = new StringBuilder("jdbc:mysql://")
                 .append(host).append(":").append(porta).append("/").append(BANCO)
                 .append("?sslMode=").append(sslMode)
-                .append("&connectionTimeZone=America/Campo_Grande")
+                .append("&connectionTimeZone=-04:00")
                 .append("&forceConnectionTimeZoneToSession=true")
                 .append("&characterEncoding=UTF-8")
-                .append("&connectTimeout=10000")
+                .append("&connectTimeout=3000")
                 .append("&socketTimeout=30000");
 
         // Necessario somente quando a conexao nao usa TLS.
