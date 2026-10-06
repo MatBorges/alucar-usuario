@@ -83,6 +83,40 @@ CREATE TABLE IF NOT EXISTS categoria_veiculo (
 );
 
 -- ------------------------------------------------------------
+-- RF02 - Veiculos
+-- A placa e a chave natural. O veiculo nao tem coluna 'ativo':
+-- quem cumpre esse papel e o proprio status, cujo valor
+-- DESATIVADO ja significa fora da frota (RN04).
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS veiculo (
+    placa            VARCHAR(7)     NOT NULL,
+    renavam          VARCHAR(11)    NOT NULL,
+    modelo           VARCHAR(50)    NOT NULL,
+    marca            VARCHAR(50)    NOT NULL,
+    ano_fabricacao   INTEGER        NOT NULL,
+    km_atual         INTEGER        NOT NULL,
+    valor_diaria     NUMERIC(10,2)  NOT NULL,
+    status           VARCHAR(15)    NOT NULL,
+    nome_categoria   VARCHAR(50)    NOT NULL,
+
+    CONSTRAINT pk_veiculo PRIMARY KEY (placa),
+    CONSTRAINT uk_veiculo_renavam UNIQUE (renavam),
+    CONSTRAINT fk_veiculo_categoria FOREIGN KEY (nome_categoria)
+        REFERENCES categoria_veiculo (nome),
+    CONSTRAINT ck_veiculo_status CHECK (status IN
+        ('DISPONIVEL', 'LOCADO', 'RESERVADO', 'EM_MANUTENCAO', 'DESATIVADO')),
+    CONSTRAINT ck_veiculo_km CHECK (km_atual >= 0),
+    CONSTRAINT ck_veiculo_valor CHECK (valor_diaria > 0)
+);
+
+-- Indices opcionais para a consulta do RF10. O MySQL nao aceita
+-- CREATE INDEX IF NOT EXISTS, entao eles ficam fora do script principal
+-- para que ele continue podendo ser executado varias vezes. Execute uma
+-- unica vez, se quiser:
+-- CREATE INDEX idx_veiculo_status ON veiculo (status);
+-- CREATE INDEX idx_veiculo_marca_modelo ON veiculo (marca, modelo);
+
+-- ------------------------------------------------------------
 -- MIGRACAO - execute apenas se as tabelas ja existiam sem as
 -- colunas novas. O MySQL nao aceita ADD COLUMN IF NOT EXISTS,
 -- entao rodar duas vezes gera erro de coluna duplicada, que pode
