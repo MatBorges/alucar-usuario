@@ -22,7 +22,8 @@ public final class ConexaoBD {
     private static final String PORTA = obterValor("ALUCAR_DB_PORT", "4000");
     private static final String BANCO = obterValor("ALUCAR_DB_NAME", "alucar");
     private static final String USUARIO = obterValor("ALUCAR_DB_USER", "37xCGj4XKVsW6YU.root");
-//    senha abaixo errada pois eu Mateus estou usando o banco local
+//    a linha comentada contem a senha correta
+//    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8e");
     private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8e");
 
     /** O TiDB Cloud recusa conexao sem TLS: sslMode=DISABLED nao funciona la. */
@@ -48,7 +49,8 @@ public final class ConexaoBD {
             montarUrl(HOST_LOCAL, PORTA_LOCAL, "DISABLED");
 
     /** Fica true depois que a aplicacao cai para o banco local. */
-    private static boolean usandoContingencia = false;
+//    deixar true para conectar no banco local
+    private static boolean usandoContingencia = true;
 
     private ConexaoBD() {
     }
