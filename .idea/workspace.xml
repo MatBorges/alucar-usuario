@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11232b5e-fc75-470b-badc-3977dd29aac0" name="Changes" comment="Adicionada a feature de cadastro de Cliente mais a feature de conexão ao TiDB">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/schema.sql" afterDir="false" />
-    </list>
+    <list default="true" id="11232b5e-fc75-470b-badc-3977dd29aac0" name="Changes" comment="Adicionada a feature de cadastro de Cliente mais a feature de conexão ao TiDB" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -114,7 +110,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/gerenciar-veiculo",
+    "git-widget-placeholder": "feature/realizar-locacao",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/DEV/TRABALHO PRATICO APSOO/alucar-usuario",
@@ -221,12 +217,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java</url>
-          <line>227</line>
+          <line>239</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java</url>
-          <line>231</line>
+          <line>243</line>
           <option name="timeStamp" value="12" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
