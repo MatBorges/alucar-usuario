@@ -109,6 +109,36 @@ CREATE TABLE IF NOT EXISTS veiculo (
     CONSTRAINT ck_veiculo_valor CHECK (valor_diaria > 0)
 );
 
+-- ------------------------------------------------------------
+-- RF08 - Locacao de Veiculos
+-- Registra a saida do veiculo associando um cliente, atendente,
+-- quilometragem inicial e datas de retirada e previsao de retorno.
+-- A transacao de locacao altera o status do veiculo para 'LOCADO'.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS locacao (
+    id_locacao               INT AUTO_INCREMENT NOT NULL,
+    data_retirada            DATETIME           NOT NULL,
+    data_devolucao_prevista  DATE               NOT NULL,
+    km_inicial               INT                NOT NULL,
+    valor_estimado           DECIMAL(10, 2)     NOT NULL,
+    valor_caucao             DECIMAL(10, 2)     NOT NULL,
+    status_locacao           VARCHAR(20)        NOT NULL DEFAULT 'ATIVA',
+    cpf_cliente              VARCHAR(11)        NOT NULL,
+    placa_veiculo            VARCHAR(7)         NOT NULL,
+    matricula_atendente      VARCHAR(20)        NOT NULL,
+
+    CONSTRAINT pk_locacao PRIMARY KEY (id_locacao),
+    CONSTRAINT fk_locacao_cliente FOREIGN KEY (cpf_cliente)
+        REFERENCES cliente (cpf),
+    CONSTRAINT fk_locacao_veiculo FOREIGN KEY (placa_veiculo)
+        REFERENCES veiculo (placa),
+    CONSTRAINT fk_locacao_atendente FOREIGN KEY (matricula_atendente)
+        REFERENCES usuario (matricula),
+    CONSTRAINT ck_locacao_status CHECK (status_locacao IN ('ATIVA', 'CONCLUIDA', 'CANCELADA')),
+    CONSTRAINT ck_locacao_valor CHECK (valor_estimado > 0),
+    CONSTRAINT ck_locacao_caucao CHECK (valor_caucao >= 0)
+);
+
 -- Indices opcionais para a consulta do RF10. O MySQL nao aceita
 -- CREATE INDEX IF NOT EXISTS, entao eles ficam fora do script principal
 -- para que ele continue podendo ser executado varias vezes. Execute uma

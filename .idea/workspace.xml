@@ -220,12 +220,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java</url>
-          <line>227</line>
+          <line>239</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java</url>
-          <line>231</line>
+          <line>243</line>
           <option name="timeStamp" value="12" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">

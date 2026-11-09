@@ -47,8 +47,8 @@ public class TelaPrincipal extends JFrame {
         add(criarPainelDeAtalhos(), BorderLayout.CENTER);
         add(criarRodape(), BorderLayout.SOUTH);
 
-        setSize(560, 500);
-        setMinimumSize(new Dimension(500, 460));
+        setSize(560, 540);
+        setMinimumSize(new Dimension(500, 500));
         setLocationRelativeTo(null);
     }
 
@@ -88,6 +88,13 @@ public class TelaPrincipal extends JFrame {
         menuSistema.add(itemSair);
 
         barra.add(menuCadastros);
+
+        JMenu menuLocacao = new JMenu("Locacao");
+        JMenuItem itemRealizarLocacao = new JMenuItem("Realizar Locacao");
+        itemRealizarLocacao.addActionListener(e -> abrirRealizarLocacao());
+        menuLocacao.add(itemRealizarLocacao);
+        barra.add(menuLocacao);
+
         barra.add(menuSistema);
         return barra;
     }
@@ -121,28 +128,33 @@ public class TelaPrincipal extends JFrame {
         c.gridx = 0;
 
 
-//        BOTÕES DO MENU
+//        BOTOES DO MENU
+
+        JButton botaoLocacao = new JButton("Realizar Locacao");
+        botaoLocacao.setPreferredSize(new Dimension(240, 44));
+        botaoLocacao.addActionListener(e -> abrirRealizarLocacao());
 
         JButton botaoClientes = new JButton("Cadastro de Clientes");
         botaoClientes.setPreferredSize(new Dimension(240, 44));
         botaoClientes.addActionListener(e -> abrirCadastroClientes());
 
-        JButton botaoUsuarios = new JButton("Cadastro de Usuarios");
-        botaoUsuarios.setPreferredSize(new Dimension(240, 44));
-        botaoUsuarios.addActionListener(e -> abrirCadastroUsuarios());
+        JButton botaoVeiculos = new JButton("Cadastro de Veiculos");
+        botaoVeiculos.setPreferredSize(new Dimension(240, 44));
+        botaoVeiculos.addActionListener(e -> abrirCadastroVeiculos());
 
         JButton botaoCategorias = new JButton("Categorias de Veiculo");
         botaoCategorias.setPreferredSize(new Dimension(240, 44));
         botaoCategorias.addActionListener(e -> abrirCadastroCategorias());
 
-        JButton botaoVeiculos = new JButton("Cadastro de Veiculos");
-        botaoVeiculos.setPreferredSize(new Dimension(240, 44));
-        botaoVeiculos.addActionListener(e -> abrirCadastroVeiculos());
+        JButton botaoUsuarios = new JButton("Cadastro de Usuarios");
+        botaoUsuarios.setPreferredSize(new Dimension(240, 44));
+        botaoUsuarios.addActionListener(e -> abrirCadastroUsuarios());
 
-        c.gridy = 0; painel.add(botaoClientes, c);
-        c.gridy = 1; painel.add(botaoUsuarios, c);
-        c.gridy = 2; painel.add(botaoCategorias, c);
-        c.gridy = 3; painel.add(botaoVeiculos, c);
+        c.gridy = 0; painel.add(botaoLocacao, c);
+        c.gridy = 1; painel.add(botaoClientes, c);
+        c.gridy = 2; painel.add(botaoVeiculos, c);
+        c.gridy = 3; painel.add(botaoCategorias, c);
+        c.gridy = 4; painel.add(botaoUsuarios, c);
 
         return painel;
     }
@@ -238,5 +250,9 @@ public class TelaPrincipal extends JFrame {
 
     private void abrirCadastroVeiculos() {
         new TelaCadastroVeiculo().setVisible(true);
+    }
+
+    private void abrirRealizarLocacao() {
+        new TelaRealizarLocacao().setVisible(true);
     }
 }
