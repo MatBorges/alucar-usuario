@@ -6,7 +6,23 @@
   <component name="ChangeListManager">
     <list default="true" id="11232b5e-fc75-470b-badc-3977dd29aac0" name="Changes" comment="Adicionada a feature de cadastro de Cliente mais a feature de conexão ao TiDB">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ConexaoBD.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ConexaoBD.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraCategoriaVeiculo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraCliente.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraLocacao.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraUsuario.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraVeiculo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ClienteDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/ClienteDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/LocacaoDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/dao/LocacaoDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Locacao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Locacao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Veiculo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Veiculo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/util/ParametrosSistema.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/util/ParametrosSistema.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaCadastroCategoria.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaCadastroCategoria.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaCadastroCliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaCadastroCliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaCadastroUsuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaCadastroUsuario.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaCadastroVeiculo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaCadastroVeiculo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaPrincipal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaRealizarLocacao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/view/TelaRealizarLocacao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/schema.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,7 +30,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="46" />
+    <option name="cachedIndexableFilesCount" value="54" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -130,8 +146,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-a203e0a19954-intellij.indexing.shared.core-IU-262.10968.63" />
-        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.10968.63" />
+        <option value="bundled-jdk-30f59d01ecdd-ac68fc9d2b05-intellij.indexing.shared.core-IU-263.7307.200" />
+        <option value="bundled-js-predefined-d6986cc7102b-56aff7b04f6f-JavaScript-IU-263.7307.200" />
       </set>
     </attachedChunks>
   </component>
@@ -202,11 +218,6 @@
           <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/Cliente.java</url>
           <line>139</line>
           <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/controller/ControladoraCategoriaVeiculo.java</url>
-          <line>18</line>
-          <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/br/ufms/facom/alucar/model/CategoriaVeiculo.java</url>

@@ -1,6 +1,6 @@
 package br.ufms.facom.alucar.view;
 
-import br.ufms.facom.alucar.controller.ControladoraCliente;
+import br.ufms.facom.alucar.controller.Controladora;
 import br.ufms.facom.alucar.controller.ValidacaoException;
 import br.ufms.facom.alucar.dao.DAOException;
 import br.ufms.facom.alucar.model.Cliente;
@@ -35,7 +35,7 @@ import java.util.List;
  * Tela de cadastro de clientes (RF03).
  *
  * Assim como a tela de usuarios, nao contem regra de negocio nem SQL: coleta
- * os dados como texto e entrega a ControladoraCliente, que decide o que e
+ * os dados como texto e entrega a Controladora, que decide o que e
  * valido.
  */
 public class TelaCadastroCliente extends JFrame {
@@ -45,7 +45,7 @@ public class TelaCadastroCliente extends JFrame {
     private static final DateTimeFormatter FORMATO_BR =
             DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    private final ControladoraCliente controladora = new ControladoraCliente();
+    private final Controladora controladora = new Controladora();
     private final ClienteTableModel tableModel = new ClienteTableModel();
 
     private JFormattedTextField campoCpf;

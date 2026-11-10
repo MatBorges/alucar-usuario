@@ -1,6 +1,6 @@
 package br.ufms.facom.alucar.view;
 
-import br.ufms.facom.alucar.controller.ControladoraUsuario;
+import br.ufms.facom.alucar.controller.Controladora;
 import br.ufms.facom.alucar.controller.ValidacaoException;
 import br.ufms.facom.alucar.dao.DAOException;
 import br.ufms.facom.alucar.model.TipoUsuario;
@@ -37,13 +37,13 @@ import java.util.List;
  *
  * Responsabilidade unica: coletar dados, exibir resultados e mensagens.
  * Nenhuma regra de negocio e nenhuma instrucao SQL aparecem aqui - tudo e
- * delegado a ControladoraUsuario.
+ * delegado a Controladora.
  */
 public class TelaCadastroUsuario extends JFrame {
 
     private static final Color AZUL_CABECALHO = new Color(31, 95, 145);
 
-    private final ControladoraUsuario controladora = new ControladoraUsuario();
+    private final Controladora controladora = new Controladora();
     private final UsuarioTableModel tableModel = new UsuarioTableModel();
 
     private JTextField campoMatricula;

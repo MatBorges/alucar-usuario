@@ -51,6 +51,18 @@ public class Veiculo {
         this.status = novoStatus;
     }
 
+    /**
+     * Atualiza a quilometragem na devolucao e reavalia a RN04: se o veiculo
+     * passou do limite de depreciacao com esta rodagem, sai de servico.
+     * A validacao de km menor que o atual e feita pela Controladora.
+     */
+    public void atualizarQuilometragem(int novoKm) {
+        this.kmAtual = novoKm;
+        if (atingiuLimiteDepreciacao()) {
+            alterarStatus(StatusVeiculo.DESATIVADO);
+        }
+    }
+
     /** Idade do veiculo em anos, em relacao ao ano corrente. */
     public int getIdadeEmAnos() {
         return LocalDate.now().getYear() - anoFabricacao;

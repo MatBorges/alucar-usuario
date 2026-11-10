@@ -1,6 +1,6 @@
 package br.ufms.facom.alucar.view;
 
-import br.ufms.facom.alucar.controller.ControladoraCategoriaVeiculo;
+import br.ufms.facom.alucar.controller.Controladora;
 import br.ufms.facom.alucar.controller.ValidacaoException;
 import br.ufms.facom.alucar.dao.DAOException;
 import br.ufms.facom.alucar.model.CategoriaVeiculo;
@@ -33,8 +33,7 @@ public class TelaCadastroCategoria extends JFrame {
 
     private static final Color AZUL_CABECALHO = new Color(31, 95, 145);
 
-    private final ControladoraCategoriaVeiculo controladora =
-            new ControladoraCategoriaVeiculo();
+    private final Controladora controladora = new Controladora();
     private final CategoriaVeiculoTableModel tableModel = new CategoriaVeiculoTableModel();
 
     private JTextField campoNome;

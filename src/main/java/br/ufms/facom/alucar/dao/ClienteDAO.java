@@ -35,6 +35,9 @@ public class ClienteDAO {
     private static final String SQL_BUSCAR_POR_CPF =
             "SELECT " + COLUNAS + " FROM cliente WHERE cpf = ?";
 
+    private static final String SQL_BUSCAR_POR_CNH =
+            "SELECT " + COLUNAS + " FROM cliente WHERE cnh = ?";
+
     private static final String SQL_BUSCAR_POR_NOME_ATIVOS =
             "SELECT " + COLUNAS + " FROM cliente WHERE nome LIKE ? AND ativo = TRUE "
             + "ORDER BY nome";
@@ -163,6 +166,25 @@ public class ClienteDAO {
 
         } catch (SQLException e) {
             throw new DAOException("Erro ao buscar o cliente: " + e.getMessage(), e);
+        }
+    }
+
+
+    /**
+     * Busca o cliente pelo numero da CNH, que e a forma de identificacao
+     * usada no caso de uso Realizar Locacao (ver DSS e contrato de operacao).
+     */
+    public Cliente buscarPorCnh(String cnh) throws DAOException {
+        try (Connection conexao = ConexaoBD.obterConexao();
+             PreparedStatement comando = conexao.prepareStatement(SQL_BUSCAR_POR_CNH)) {
+
+            comando.setString(1, cnh);
+            try (ResultSet resultado = comando.executeQuery()) {
+                return resultado.next() ? montarCliente(resultado) : null;
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException("Erro ao buscar o cliente pela CNH: " + e.getMessage(), e);
         }
     }
 

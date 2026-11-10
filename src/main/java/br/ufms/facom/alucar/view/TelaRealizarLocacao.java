@@ -1,6 +1,6 @@
 package br.ufms.facom.alucar.view;
 
-import br.ufms.facom.alucar.controller.ControladoraLocacao;
+import br.ufms.facom.alucar.controller.Controladora;
 import br.ufms.facom.alucar.controller.ValidacaoException;
 import br.ufms.facom.alucar.dao.DAOException;
 import br.ufms.facom.alucar.model.Cliente;
@@ -38,18 +38,30 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+/**
+ * Camada de Interface com o Usuario do caso de uso Realizar Locacao (RF08).
+ *
+ * A sequencia de interacao segue o DSS do caso de uso: o atendente identifica
+ * o cliente pela CNH, o sistema valida a habilitacao e devolve os dados do
+ * cliente, o atendente consulta os veiculos disponiveis, escolhe um, confirma
+ * o endereco, informa a previsao de retorno e o caucao, e so entao efetua a
+ * locacao. A tela nao contem regra de negocio: tudo passa pela Controladora.
+ */
 public class TelaRealizarLocacao extends JFrame {
 
     private static final Color AZUL_CABECALHO = new Color(31, 95, 145);
+    private static final Color VERDE = new Color(0, 110, 60);
     private static final String TODAS = "(todas)";
     private static final DateTimeFormatter FORMATO_BR = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    private final ControladoraLocacao controladora = new ControladoraLocacao();
+    private final Controladora controladora = new Controladora();
     private final LocacaoTableModel tableModel = new LocacaoTableModel();
 
-    private JComboBox<Cliente> comboCliente;
-    private JComboBox<Veiculo> comboVeiculo;
     private JComboBox<Usuario> comboAtendente;
+    private JFormattedTextField campoCnh;
+    private JButton botaoValidarCnh;
+    private JComboBox<Veiculo> comboVeiculo;
+    private JTextField campoEndereco;
     private JFormattedTextField campoDataDevolucao;
     private JTextField campoCaucao;
 
@@ -61,10 +73,16 @@ public class TelaRealizarLocacao extends JFrame {
     private JTable tabelaLocacoes;
     private JLabel rotuloStatus;
 
+    /** Cliente devolvido por validaCNH. Enquanto for nulo, nao ha locacao a efetuar. */
+    private Cliente clienteValidado;
+
+    /** Veiculo devolvido por buscarDadosVeiculo. */
+    private Veiculo veiculoSelecionado;
+
     public TelaRealizarLocacao() {
         super("Realizar Locacao de Veiculos - Alucar");
         montarInterface();
-        carregarCombos();
+        carregarDados();
         consultarLocacoes();
     }
 
@@ -76,8 +94,8 @@ public class TelaRealizarLocacao extends JFrame {
         add(criarPainelCentral(), BorderLayout.CENTER);
         add(criarBarraStatus(), BorderLayout.SOUTH);
 
-        setSize(1000, 740);
-        setMinimumSize(new Dimension(920, 650));
+        setSize(1000, 760);
+        setMinimumSize(new Dimension(920, 670));
         setLocationRelativeTo(null);
     }
 
@@ -116,75 +134,112 @@ public class TelaRealizarLocacao extends JFrame {
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        comboCliente = new JComboBox<>();
-        comboVeiculo = new JComboBox<>();
         comboAtendente = new JComboBox<>();
+        campoCnh = criarCampoComMascara("###########");
+        botaoValidarCnh = new JButton("Validar CNH");
+        comboVeiculo = new JComboBox<>();
+        campoEndereco = new JTextField(24);
         campoDataDevolucao = criarCampoComMascara("##/##/####");
-        campoCaucao = new JTextField("500,00", 10);
+        campoCaucao = new JTextField(10);
 
-        rotuloInfoCliente = new JLabel(" ");
+        campoCaucao.setText(MoedaUtil.formatar(controladora.getCaucaoMinima())
+                .replace("R$", "").trim());
+
+        rotuloInfoCliente = new JLabel("Informe a CNH do cliente e clique em Validar CNH.");
         rotuloInfoCliente.setFont(rotuloInfoCliente.getFont().deriveFont(Font.PLAIN, 11f));
+        rotuloInfoCliente.setForeground(Color.DARK_GRAY);
 
         rotuloInfoVeiculo = new JLabel(" ");
         rotuloInfoVeiculo.setFont(rotuloInfoVeiculo.getFont().deriveFont(Font.PLAIN, 11f));
 
         rotuloEstimativa = new JLabel("R$ 0,00");
         rotuloEstimativa.setFont(rotuloEstimativa.getFont().deriveFont(Font.BOLD, 13f));
-        rotuloEstimativa.setForeground(new Color(0, 110, 60));
+        rotuloEstimativa.setForeground(VERDE);
 
-        comboCliente.addActionListener(e -> atualizarInfoCliente());
-        comboVeiculo.addActionListener(e -> {
-            atualizarInfoVeiculo();
-            atualizarEstimativa();
-        });
+        comboAtendente.addActionListener(e -> autenticarAtendenteSelecionado());
+        botaoValidarCnh.addActionListener(e -> validarCnh());
+        campoCnh.addActionListener(e -> validarCnh());
+        comboVeiculo.addActionListener(e -> selecionarVeiculo());
         campoDataDevolucao.addActionListener(e -> atualizarEstimativa());
 
         int linha = 0;
 
-        c.gridx = 0; c.gridy = linha; c.weightx = 0;
-        formulario.add(new JLabel("Cliente:"), c);
-        c.gridx = 1; c.weightx = 1;
-        formulario.add(comboCliente, c);
-        c.gridx = 2; c.weightx = 0;
-        formulario.add(new JLabel("Veiculo (Disponivel):"), c);
-        c.gridx = 3; c.weightx = 1;
-        formulario.add(comboVeiculo, c);
-
-        linha++;
-        c.gridx = 0; c.gridy = linha; c.weightx = 0;
-        formulario.add(new JLabel("Status CNH:"), c);
-        c.gridx = 1; c.weightx = 1;
-        formulario.add(rotuloInfoCliente, c);
-        c.gridx = 2; c.weightx = 0;
-        formulario.add(new JLabel("Diaria do Veiculo:"), c);
-        c.gridx = 3; c.weightx = 1;
-        formulario.add(rotuloInfoVeiculo, c);
-
-        linha++;
+        // Pre-condicao do contrato: atendente autenticado.
         c.gridx = 0; c.gridy = linha; c.weightx = 0;
         formulario.add(new JLabel("Atendente:"), c);
         c.gridx = 1; c.weightx = 1;
         formulario.add(comboAtendente, c);
         c.gridx = 2; c.weightx = 0;
-        formulario.add(new JLabel("Previsao de Retorno:"), c);
+        formulario.add(new JLabel("CNH do Cliente:"), c);
         c.gridx = 3; c.weightx = 1;
-        formulario.add(campoDataDevolucao, c);
+        formulario.add(criarPainelCnh(), c);
+
+        // DSS: dadosCliente = validaCNH(CNH)
+        linha++;
+        c.gridx = 0; c.gridy = linha; c.weightx = 0;
+        formulario.add(new JLabel("Cliente:"), c);
+        c.gridx = 1; c.gridwidth = 3; c.weightx = 1;
+        formulario.add(rotuloInfoCliente, c);
+        c.gridwidth = 1;
+
+        // Pos-condicao do contrato: o endereco do atendimento e registrado.
+        linha++;
+        c.gridx = 0; c.gridy = linha; c.weightx = 0;
+        formulario.add(new JLabel("Endereco:"), c);
+        c.gridx = 1; c.gridwidth = 3; c.weightx = 1;
+        formulario.add(campoEndereco, c);
+        c.gridwidth = 1;
+
+        // DSS: consultarVeiculosDisponiveis() / buscarDadosVeiculo(placa)
+        linha++;
+        c.gridx = 0; c.gridy = linha; c.weightx = 0;
+        formulario.add(new JLabel("Veiculo (Disponivel):"), c);
+        c.gridx = 1; c.weightx = 1;
+        formulario.add(comboVeiculo, c);
+        c.gridx = 2; c.weightx = 0;
+        formulario.add(new JLabel("Dados do Veiculo:"), c);
+        c.gridx = 3; c.weightx = 1;
+        formulario.add(rotuloInfoVeiculo, c);
 
         linha++;
         c.gridx = 0; c.gridy = linha; c.weightx = 0;
-        formulario.add(new JLabel("Caucao (R$):"), c);
+        formulario.add(new JLabel("Previsao de Retorno:"), c);
         c.gridx = 1; c.weightx = 1;
-        formulario.add(campoCaucao, c);
+        formulario.add(campoDataDevolucao, c);
         c.gridx = 2; c.weightx = 0;
         formulario.add(new JLabel("Valor Estimado:"), c);
         c.gridx = 3; c.weightx = 1;
         formulario.add(rotuloEstimativa, c);
 
         linha++;
+        c.gridx = 0; c.gridy = linha; c.weightx = 0;
+        formulario.add(new JLabel("Caucao (R$):"), c);
+        c.gridx = 1; c.weightx = 1;
+        formulario.add(campoCaucao, c);
+        c.gridx = 2; c.gridwidth = 2; c.weightx = 1;
+        formulario.add(criarRotuloCaucaoMinima(), c);
+        c.gridwidth = 1;
+
+        linha++;
         c.gridx = 0; c.gridy = linha; c.gridwidth = 4;
         formulario.add(criarPainelBotoes(), c);
 
         return formulario;
+    }
+
+    private JPanel criarPainelCnh() {
+        JPanel painel = new JPanel(new BorderLayout(4, 0));
+        painel.add(campoCnh, BorderLayout.CENTER);
+        painel.add(botaoValidarCnh, BorderLayout.EAST);
+        return painel;
+    }
+
+    private JLabel criarRotuloCaucaoMinima() {
+        JLabel rotulo = new JLabel("Garantia minima exigida (RN03): "
+                + MoedaUtil.formatar(controladora.getCaucaoMinima()));
+        rotulo.setFont(rotulo.getFont().deriveFont(Font.PLAIN, 11f));
+        rotulo.setForeground(Color.DARK_GRAY);
+        return rotulo;
     }
 
     private JPanel criarPainelBotoes() {
@@ -196,18 +251,21 @@ public class TelaRealizarLocacao extends JFrame {
 
         JButton botaoConfirmar = new JButton("Confirmar Locacao");
         JButton botaoCalcular = new JButton("Recalcular Estimativa");
+        JButton botaoLimpar = new JButton("Limpar Atendimento");
         JButton botaoAtualizar = new JButton("Recarregar Dados");
         JButton botaoFechar = new JButton("Fechar");
 
         botaoConfirmar.addActionListener(e -> confirmarLocacao());
         botaoCalcular.addActionListener(e -> atualizarEstimativa());
-        botaoAtualizar.addActionListener(e -> carregarCombos());
+        botaoLimpar.addActionListener(e -> limparAtendimento());
+        botaoAtualizar.addActionListener(e -> carregarDados());
         botaoFechar.addActionListener(e -> dispose());
 
         c.gridx = 0; botoes.add(botaoConfirmar, c);
         c.gridx = 1; botoes.add(botaoCalcular, c);
-        c.gridx = 2; botoes.add(botaoAtualizar, c);
-        c.gridx = 3; botoes.add(botaoFechar, c);
+        c.gridx = 2; botoes.add(botaoLimpar, c);
+        c.gridx = 3; botoes.add(botaoAtualizar, c);
+        c.gridx = 4; botoes.add(botaoFechar, c);
 
         return botoes;
     }
@@ -223,7 +281,8 @@ public class TelaRealizarLocacao extends JFrame {
         c.insets = new Insets(2, 4, 2, 4);
         c.anchor = GridBagConstraints.WEST;
 
-        comboFiltroStatus = new JComboBox<>(new Object[]{TODAS, StatusLocacao.ATIVA, StatusLocacao.CONCLUIDA, StatusLocacao.CANCELADA});
+        comboFiltroStatus = new JComboBox<>(new Object[]{
+                TODAS, StatusLocacao.ATIVA, StatusLocacao.CONCLUIDA, StatusLocacao.CANCELADA});
         comboFiltroStatus.addActionListener(e -> consultarLocacoes());
 
         JButton botaoConsultar = new JButton("Consultar");
@@ -270,30 +329,28 @@ public class TelaRealizarLocacao extends JFrame {
         }
     }
 
-    private void carregarCombos() {
+    // ------------------------------------------------------------------
+    // Eventos de sistema (um metodo por mensagem do DSS)
+    // ------------------------------------------------------------------
+
+    private void carregarDados() {
         try {
-            comboCliente.removeAllItems();
-            List<Cliente> clientes = controladora.listarClientesAtivos();
-            for (Cliente cl : clientes) {
-                comboCliente.addItem(cl);
-            }
-
-            comboVeiculo.removeAllItems();
-            List<Veiculo> veiculos = controladora.listarVeiculosDisponiveis();
-            for (Veiculo v : veiculos) {
-                comboVeiculo.addItem(v);
-            }
-
             comboAtendente.removeAllItems();
             List<Usuario> atendentes = controladora.listarAtendentesAtivos();
             for (Usuario u : atendentes) {
                 comboAtendente.addItem(u);
             }
 
-            atualizarInfoCliente();
-            atualizarInfoVeiculo();
-            atualizarEstimativa();
-            rotuloStatus.setText("Dados carregados com sucesso. Veiculos disponiveis: " + veiculos.size() + ".");
+            // DSS: listaVeiculos = consultarVeiculosDisponiveis()
+            comboVeiculo.removeAllItems();
+            List<Veiculo> veiculos = controladora.consultarVeiculosDisponiveis();
+            for (Veiculo v : veiculos) {
+                comboVeiculo.addItem(v);
+            }
+
+            autenticarAtendenteSelecionado();
+            selecionarVeiculo();
+            rotuloStatus.setText("Dados carregados. Veiculos disponiveis: " + veiculos.size() + ".");
 
         } catch (DAOException e) {
             rotuloStatus.setText("Falha ao carregar dados do banco de dados.");
@@ -301,88 +358,138 @@ public class TelaRealizarLocacao extends JFrame {
         }
     }
 
-    private void atualizarInfoCliente() {
-        Cliente c = (Cliente) comboCliente.getSelectedItem();
-        if (c == null) {
-            rotuloInfoCliente.setText("Nenhum cliente selecionado.");
-            rotuloInfoCliente.setForeground(Color.DARK_GRAY);
+    private void autenticarAtendenteSelecionado() {
+        Usuario atendente = (Usuario) comboAtendente.getSelectedItem();
+        if (atendente == null) {
             return;
         }
-
-        LocalDate validade = c.getValidadeCnh();
-        if (validade == null || validade.isBefore(LocalDate.now())) {
-            rotuloInfoCliente.setText("CNH VENCIDA (" + (validade != null ? validade.format(FORMATO_BR) : "Nao informada") + ") - Impede locacao");
-            rotuloInfoCliente.setForeground(Color.RED);
-        } else {
-            rotuloInfoCliente.setText("CNH Valida ate " + validade.format(FORMATO_BR));
-            rotuloInfoCliente.setForeground(new Color(0, 110, 60));
+        try {
+            controladora.autenticarAtendente(atendente.getMatricula());
+        } catch (ValidacaoException e) {
+            exibirAviso(e.getMessage());
+        } catch (DAOException e) {
+            exibirErro("Erro ao identificar o atendente: " + e.getMessage());
         }
     }
 
-    private void atualizarInfoVeiculo() {
-        Veiculo v = (Veiculo) comboVeiculo.getSelectedItem();
-        if (v == null) {
+    /** DSS mensagem 2: dadosCliente = validaCNH(CNH) */
+    private void validarCnh() {
+        clienteValidado = null;
+        try {
+            clienteValidado = controladora.validaCNH(campoCnh.getText());
+
+            rotuloInfoCliente.setText(clienteValidado.getNome()
+                    + "  |  CNH valida ate "
+                    + clienteValidado.getValidadeCnh().format(FORMATO_BR));
+            rotuloInfoCliente.setForeground(VERDE);
+
+            campoEndereco.setText(clienteValidado.getEndereco() == null
+                    ? "" : clienteValidado.getEndereco());
+
+            rotuloStatus.setText("Cliente identificado: " + clienteValidado.getNome() + ".");
+
+        } catch (ValidacaoException e) {
+            rotuloInfoCliente.setText("CNH invalida, locacao nao autorizada.");
+            rotuloInfoCliente.setForeground(Color.RED);
+            campoEndereco.setText("");
+            rotuloStatus.setText("Validacao da CNH recusada.");
+            exibirAviso(e.getMessage());
+
+        } catch (DAOException e) {
+            rotuloInfoCliente.setText(" ");
+            exibirErro("Erro ao consultar o cliente: " + e.getMessage());
+        }
+    }
+
+    /** DSS mensagem 5: dadosVeiculo = buscarDadosVeiculo(placa) */
+    private void selecionarVeiculo() {
+        veiculoSelecionado = null;
+        Veiculo escolhido = (Veiculo) comboVeiculo.getSelectedItem();
+
+        if (escolhido == null) {
             rotuloInfoVeiculo.setText("Nenhum veiculo selecionado.");
+            rotuloInfoVeiculo.setForeground(Color.DARK_GRAY);
+            atualizarEstimativa();
             return;
         }
 
-        rotuloInfoVeiculo.setText("Diaria: " + MoedaUtil.formatar(v.getValorDiaria())
-                + " | Km atual: " + v.getKmAtual() + " km | Categoria: " + v.getCategoria().getNome());
+        try {
+            veiculoSelecionado = controladora.buscarDadosVeiculo(escolhido.getPlaca());
+
+            rotuloInfoVeiculo.setText("Diaria: "
+                    + MoedaUtil.formatar(veiculoSelecionado.getValorDiaria())
+                    + "  |  Km atual: " + veiculoSelecionado.getKmAtual() + " km"
+                    + "  |  Categoria: " + veiculoSelecionado.getCategoria().getNome());
+            rotuloInfoVeiculo.setForeground(Color.BLACK);
+
+        } catch (ValidacaoException e) {
+            rotuloInfoVeiculo.setText(e.getMessage().split("\n")[0]);
+            rotuloInfoVeiculo.setForeground(Color.RED);
+
+        } catch (DAOException e) {
+            exibirErro("Erro ao consultar o veiculo: " + e.getMessage());
+        }
+
+        atualizarEstimativa();
     }
 
     private void atualizarEstimativa() {
-        Veiculo v = (Veiculo) comboVeiculo.getSelectedItem();
-        String dataTxt = campoDataDevolucao.getText();
+        String dataTexto = campoDataDevolucao.getText();
 
-        if (v == null || dataTxt == null || dataTxt.isBlank() || dataTxt.contains(" ")) {
+        if (veiculoSelecionado == null || dataTexto == null
+                || dataTexto.isBlank() || dataTexto.contains(" ")) {
             rotuloEstimativa.setText("R$ 0,00");
             return;
         }
 
         try {
-            LocalDate dataRetorno = LocalDate.parse(dataTxt.trim(), FORMATO_BR);
-            BigDecimal total = controladora.calcularEstimativa(v.getValorDiaria(), dataRetorno);
+            LocalDate dataRetorno = LocalDate.parse(dataTexto.trim(), FORMATO_BR);
+            BigDecimal total = controladora.calcularValorEstimado(veiculoSelecionado, dataRetorno);
             rotuloEstimativa.setText(MoedaUtil.formatar(total));
         } catch (DateTimeParseException ignored) {
             rotuloEstimativa.setText("Data invalida");
         }
     }
 
+    /**
+     * DSS mensagem 9:
+     * efetuarLocacao(CNH, placa, endereco, dataDevolucaoPrevista, valorCaucao)
+     */
     private void confirmarLocacao() {
-        Cliente cliente = (Cliente) comboCliente.getSelectedItem();
-        Veiculo veiculo = (Veiculo) comboVeiculo.getSelectedItem();
-        Usuario atendente = (Usuario) comboAtendente.getSelectedItem();
-
-        if (cliente == null) {
-            exibirAviso("Selecione um cliente para prosseguir.");
+        if (clienteValidado == null) {
+            exibirAviso("Valide a CNH do cliente antes de efetuar a locacao.");
             return;
         }
-        if (veiculo == null) {
+        if (veiculoSelecionado == null) {
             exibirAviso("Selecione um veiculo disponivel para locacao.");
             return;
         }
-        if (atendente == null) {
-            exibirAviso("Selecione o atendente responsavel.");
-            return;
-        }
-
-        String dataDevolucaoTexto = campoDataDevolucao.getText();
-        String valorCaucaoTexto = campoCaucao.getText();
 
         try {
-            Locacao locacao = controladora.realizarLocacao(
-                    cliente.getCpf(),
-                    veiculo.getPlaca(),
-                    atendente.getMatricula(),
-                    dataDevolucaoTexto,
-                    valorCaucaoTexto
+            LocalDate dataDevolucao = controladora.converterDataDoFormulario(
+                    campoDataDevolucao.getText(), "data de devolucao prevista");
+
+            BigDecimal caucao = controladora.converterValorMonetario(
+                    campoCaucao.getText(), "valor do caucao");
+
+            Locacao locacao = controladora.efetuarLocacao(
+                    clienteValidado.getCnh(),
+                    veiculoSelecionado.getPlaca(),
+                    campoEndereco.getText(),
+                    dataDevolucao,
+                    caucao
             );
 
-            exibirInformacao("Locacao #" + locacao.getIdLocacao() + " realizada com sucesso!\n"
-                    + "Veiculo " + veiculo.getPlaca() + " (" + veiculo.getModelo() + ") foi alterado para LOCADO.\n"
+            exibirInformacao("Locacao realizada.\n\n"
+                    + "Locacao #" + locacao.getIdLocacao() + "\n"
+                    + "Cliente: " + locacao.getCliente().getNome() + "\n"
+                    + "Veiculo: " + locacao.getVeiculo().getPlaca()
+                    + " (" + locacao.getVeiculo().getModelo() + ") passou para LOCADO\n"
+                    + "Diarias: " + locacao.calcularQuantidadeDeDiarias() + "\n"
                     + "Valor estimado: " + MoedaUtil.formatar(locacao.getValorEstimado()));
 
-            carregarCombos();
+            limparAtendimento();
+            carregarDados();
             consultarLocacoes();
 
         } catch (ValidacaoException e) {
@@ -390,6 +497,22 @@ public class TelaRealizarLocacao extends JFrame {
         } catch (DAOException e) {
             exibirErro(e.getMessage());
         }
+    }
+
+    private void limparAtendimento() {
+        clienteValidado = null;
+        veiculoSelecionado = null;
+
+        campoCnh.setValue(null);
+        campoEndereco.setText("");
+        campoDataDevolucao.setValue(null);
+        campoCaucao.setText(MoedaUtil.formatar(controladora.getCaucaoMinima())
+                .replace("R$", "").trim());
+
+        rotuloInfoCliente.setText("Informe a CNH do cliente e clique em Validar CNH.");
+        rotuloInfoCliente.setForeground(Color.DARK_GRAY);
+        rotuloEstimativa.setText("R$ 0,00");
+        rotuloStatus.setText("Atendimento limpo.");
     }
 
     private void consultarLocacoes() {
@@ -400,7 +523,7 @@ public class TelaRealizarLocacao extends JFrame {
         }
 
         try {
-            List<Locacao> locacoes = controladora.listarPorStatus(statusFiltro);
+            List<Locacao> locacoes = controladora.listarLocacoesPorStatus(statusFiltro);
             tableModel.definirLocacoes(locacoes);
             rotuloStatus.setText(locacoes.size() + " locacao(oes) encontrada(s).");
         } catch (DAOException e) {
@@ -428,7 +551,8 @@ public class TelaRealizarLocacao extends JFrame {
         int resposta = JOptionPane.showConfirmDialog(
                 this,
                 "Tem certeza que deseja cancelar a locacao #" + locacao.getIdLocacao() + "?\n"
-                        + "O veiculo " + locacao.getVeiculo().getPlaca() + " retornara ao status DISPONIVEL.",
+                        + "O veiculo " + locacao.getVeiculo().getPlaca()
+                        + " retornara ao status DISPONIVEL.",
                 "Confirmar Cancelamento",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
@@ -436,9 +560,10 @@ public class TelaRealizarLocacao extends JFrame {
 
         if (resposta == JOptionPane.YES_OPTION) {
             try {
-                controladora.cancelarLocacao(locacao.getIdLocacao(), locacao.getVeiculo().getPlaca());
+                controladora.cancelarLocacao(locacao.getIdLocacao(),
+                        locacao.getVeiculo().getPlaca());
                 exibirInformacao("Locacao cancelada com sucesso.");
-                carregarCombos();
+                carregarDados();
                 consultarLocacoes();
             } catch (DAOException e) {
                 exibirErro("Erro ao cancelar locacao: " + e.getMessage());

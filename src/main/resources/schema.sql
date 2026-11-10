@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS usuario (
 -- restricao for ignorada, troque a coluna por
 --   tipo_usuario ENUM('GERENTE','ATENDENTE','MECANICO') NOT NULL
 -- e remova a linha do CHECK. A validacao do tipo ja e garantida pela
--- aplicacao, em ControladoraUsuario e no enum TipoUsuario.
+-- aplicacao, na Controladora e no enum TipoUsuario.
 
 -- ------------------------------------------------------------
 -- RF01 - Clientes
@@ -123,6 +123,15 @@ CREATE TABLE IF NOT EXISTS locacao (
     valor_estimado           DECIMAL(10, 2)     NOT NULL,
     valor_caucao             DECIMAL(10, 2)     NOT NULL,
     status_locacao           VARCHAR(20)        NOT NULL DEFAULT 'ATIVA',
+
+    -- Preenchidas somente no Registrar Devolucao (RF09). Os nomes seguem
+    -- os atributos citados no contrato de operacao.
+    data_hora_devolucao_efetiva DATETIME        NULL,
+    km_final                 INT                NULL,
+    valor_final              DECIMAL(10, 2)     NULL,
+    vistoria                 VARCHAR(500)       NULL,
+    custo_avaria             DECIMAL(10, 2)     NULL,
+
     cpf_cliente              VARCHAR(11)        NOT NULL,
     placa_veiculo            VARCHAR(7)         NOT NULL,
     matricula_atendente      VARCHAR(20)        NOT NULL,

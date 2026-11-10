@@ -27,7 +27,6 @@ public class TelaPrincipal extends JFrame {
 
     private static final Color AZUL_CABECALHO = new Color(31, 95, 145);
     private static final Color VERDE_OK = new Color(0, 110, 60);
-    private static final Color AMBAR_ALERTA = new Color(160, 95, 0);
     private static final Color VERMELHO_ERRO = new Color(165, 30, 30);
 
     private JLabel rotuloConexao;
@@ -93,6 +92,11 @@ public class TelaPrincipal extends JFrame {
         JMenuItem itemRealizarLocacao = new JMenuItem("Realizar Locacao");
         itemRealizarLocacao.addActionListener(e -> abrirRealizarLocacao());
         menuLocacao.add(itemRealizarLocacao);
+
+        JMenuItem itemRegistrarDevolucao = new JMenuItem("Registrar Devolucao");
+        itemRegistrarDevolucao.addActionListener(e -> abrirRegistrarDevolucao());
+        menuLocacao.add(itemRegistrarDevolucao);
+
         barra.add(menuLocacao);
 
         barra.add(menuSistema);
@@ -134,6 +138,10 @@ public class TelaPrincipal extends JFrame {
         botaoLocacao.setPreferredSize(new Dimension(240, 44));
         botaoLocacao.addActionListener(e -> abrirRealizarLocacao());
 
+        JButton botaoDevolucao = new JButton("Registrar Devolucao");
+        botaoDevolucao.setPreferredSize(new Dimension(240, 44));
+        botaoDevolucao.addActionListener(e -> abrirRegistrarDevolucao());
+
         JButton botaoClientes = new JButton("Cadastro de Clientes");
         botaoClientes.setPreferredSize(new Dimension(240, 44));
         botaoClientes.addActionListener(e -> abrirCadastroClientes());
@@ -151,10 +159,11 @@ public class TelaPrincipal extends JFrame {
         botaoUsuarios.addActionListener(e -> abrirCadastroUsuarios());
 
         c.gridy = 0; painel.add(botaoLocacao, c);
-        c.gridy = 1; painel.add(botaoClientes, c);
-        c.gridy = 2; painel.add(botaoVeiculos, c);
-        c.gridy = 3; painel.add(botaoCategorias, c);
-        c.gridy = 4; painel.add(botaoUsuarios, c);
+        c.gridy = 1; painel.add(botaoDevolucao, c);
+        c.gridy = 2; painel.add(botaoClientes, c);
+        c.gridy = 3; painel.add(botaoVeiculos, c);
+        c.gridy = 4; painel.add(botaoCategorias, c);
+        c.gridy = 5; painel.add(botaoUsuarios, c);
 
         return painel;
     }
@@ -190,12 +199,10 @@ public class TelaPrincipal extends JFrame {
         new SwingWorker<String, Void>() {
 
             private boolean houveFalha = false;
-            private boolean emContingencia = false;
 
             @Override
             protected String doInBackground() {
                 try (Connection ignorada = ConexaoBD.obterConexao()) {
-                    emContingencia = ConexaoBD.estaUsandoContingencia();
                     return "Conectado a " + ConexaoBD.descreverConexaoAtiva();
 
                 } catch (Exception e) {
@@ -216,13 +223,7 @@ public class TelaPrincipal extends JFrame {
                     houveFalha = true;
                 }
 
-                if (houveFalha) {
-                    rotuloConexao.setForeground(VERMELHO_ERRO);
-                } else if (emContingencia) {
-                    rotuloConexao.setForeground(AMBAR_ALERTA);
-                } else {
-                    rotuloConexao.setForeground(VERDE_OK);
-                }
+                rotuloConexao.setForeground(houveFalha ? VERMELHO_ERRO : VERDE_OK);
             }
         }.execute();
     }
@@ -250,6 +251,10 @@ public class TelaPrincipal extends JFrame {
 
     private void abrirCadastroVeiculos() {
         new TelaCadastroVeiculo().setVisible(true);
+    }
+
+    private void abrirRegistrarDevolucao() {
+        new TelaRegistrarDevolucao().setVisible(true);
     }
 
     private void abrirRealizarLocacao() {

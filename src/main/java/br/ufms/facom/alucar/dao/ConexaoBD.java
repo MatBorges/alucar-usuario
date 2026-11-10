@@ -4,95 +4,54 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-
-
+/**
+ * Ponto unico de acesso ao banco de dados (MySQL).
+ *
+ * Todos os DAOs obtem a conexao por aqui. A configuracao tem valores
+ * padrao embutidos, que servem para o container Docker usado no
+ * desenvolvimento, e pode ser sobrescrita por variaveis de ambiente sem
+ * recompilar:
+ *
+ *   ALUCAR_DB_HOST       (padrao localhost)
+ *   ALUCAR_DB_PORT       (padrao 3434)
+ *   ALUCAR_DB_NAME       (padrao alucar)
+ *   ALUCAR_DB_USER       (padrao root)
+ *   ALUCAR_DB_PASSWORD   (padrao 123)
+ *   ALUCAR_DB_SSL_MODE   (padrao DISABLED)
+ */
 public final class ConexaoBD {
 
-    // ---------- Conexao TiDB Cloud ----------
-
-//    Banco Pedro:
-//    host: gateway01.sa-east-1.prod.aws.tidbcloud.com
-//    porta: 4000
-//    banco: alucar
-//    user: 37xCGj4XKVsW6YU.root
-//    s: TsZLi6DML7XLXo8e
-
-    private static final String HOST =
-            obterValor("ALUCAR_DB_HOST", "gateway01.sa-east-1.prod.aws.tidbcloud.com");
-    private static final String PORTA = obterValor("ALUCAR_DB_PORT", "4000");
+    private static final String HOST = obterValor("ALUCAR_DB_HOST", "localhost");
+    private static final String PORTA = obterValor("ALUCAR_DB_PORT", "3434");
     private static final String BANCO = obterValor("ALUCAR_DB_NAME", "alucar");
-    private static final String USUARIO = obterValor("ALUCAR_DB_USER", "37xCGj4XKVsW6YU.root");
-//    a linha comentada contem a senha correta
-//    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8e");
-    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "TsZLi6DML7XLXo8e");
+    private static final String USUARIO = obterValor("ALUCAR_DB_USER", "root");
+    private static final String SENHA = obterValor("ALUCAR_DB_PASSWORD", "123");
 
-    /** O TiDB Cloud recusa conexao sem TLS: sslMode=DISABLED nao funciona la. */
-    private static final String SSL_MODE = obterValor("ALUCAR_DB_SSL_MODE", "VERIFY_IDENTITY");
+    /** O MySQL do container roda sem TLS. */
+    private static final String SSL_MODE = obterValor("ALUCAR_DB_SSL_MODE", "DISABLED");
 
-    // ---------- Conexao MySQL local ----------
-
-    private static final boolean USAR_CONTINGENCIA =
-//            deixar "true" para tentar conectar no banco local
-            Boolean.parseBoolean(obterValor("ALUCAR_DB_FALLBACK", "true"));
-
-    private static final String HOST_LOCAL = obterValor("ALUCAR_DB_LOCAL_HOST", "localhost");
-    private static final String PORTA_LOCAL = obterValor("ALUCAR_DB_LOCAL_PORT", "3434");
-    private static final String USUARIO_LOCAL = obterValor("ALUCAR_DB_LOCAL_USER", "root");
-    private static final String SENHA_LOCAL = obterValor("ALUCAR_DB_LOCAL_PASSWORD", "123");
-
-
-
-    private static final String URL_PRINCIPAL =
-            montarUrl(HOST, PORTA, SSL_MODE);
-
-    private static final String URL_CONTINGENCIA =
-            montarUrl(HOST_LOCAL, PORTA_LOCAL, "DISABLED");
-
-    /** Fica true depois que a aplicacao cai para o banco local. */
-//    deixar true para conectar no banco local
-    private static boolean usandoContingencia = true;
+    private static final String URL = montarUrl();
 
     private ConexaoBD() {
     }
 
     public static Connection obterConexao() throws DAOException {
         try {
-            return DriverManager.getConnection(URL_PRINCIPAL, USUARIO, SENHA);
-
-        } catch (SQLException falhaPrincipal) {
-
-            if (!USAR_CONTINGENCIA) {
-                throw new DAOException(montarMensagemDeFalha(falhaPrincipal), falhaPrincipal);
-            }
-
-            try {
-                Connection conexaoLocal =
-                        DriverManager.getConnection(URL_CONTINGENCIA, USUARIO_LOCAL, SENHA_LOCAL);
-                avisarUsoDaContingencia(falhaPrincipal);
-                return conexaoLocal;
-
-            } catch (SQLException falhaLocal) {
-                throw new DAOException(montarMensagemDasDuasFalhas(falhaPrincipal, falhaLocal),
-                        falhaPrincipal);
-            }
+            return DriverManager.getConnection(URL, USUARIO, SENHA);
+        } catch (SQLException e) {
+            throw new DAOException(montarMensagemDeFalha(e), e);
         }
     }
 
-    /** Indica se a aplicacao esta operando sobre o banco local de contingencia. */
-    public static boolean estaUsandoContingencia() {
-        return usandoContingencia;
-    }
-
+    /** Texto exibido na barra inferior da tela principal. */
     public static String descreverConexaoAtiva() {
-        return usandoContingencia
-                ? "MySQL local em " + HOST_LOCAL + ":" + PORTA_LOCAL + " (contingencia)"
-                : "TiDB Cloud em " + HOST + ":" + PORTA;
+        return "MySQL em " + HOST + ":" + PORTA + "/" + BANCO;
     }
 
-    private static String montarUrl(String host, String porta, String sslMode) {
+    private static String montarUrl() {
         StringBuilder url = new StringBuilder("jdbc:mysql://")
-                .append(host).append(":").append(porta).append("/").append(BANCO)
-                .append("?sslMode=").append(sslMode)
+                .append(HOST).append(":").append(PORTA).append("/").append(BANCO)
+                .append("?sslMode=").append(SSL_MODE)
                 .append("&connectionTimeZone=America/Campo_Grande")
                 .append("&forceConnectionTimeZoneToSession=true")
                 .append("&characterEncoding=UTF-8")
@@ -100,39 +59,15 @@ public final class ConexaoBD {
                 .append("&socketTimeout=30000");
 
         // Necessario somente quando a conexao nao usa TLS.
-        if ("DISABLED".equalsIgnoreCase(sslMode)) {
+        if ("DISABLED".equalsIgnoreCase(SSL_MODE)) {
             url.append("&allowPublicKeyRetrieval=true");
         }
         return url.toString();
     }
 
-//    Avisa se o banco usado é o local
-    private static void avisarUsoDaContingencia(SQLException falhaPrincipal) {
-        if (usandoContingencia) {
-            return;
-        }
-        usandoContingencia = true;
-
-        System.err.println("=".repeat(70));
-        System.err.println("ATENCAO: o TiDB Cloud nao respondeu. A aplicacao esta operando");
-        System.err.println("sobre o MySQL LOCAL em " + HOST_LOCAL + ":" + PORTA_LOCAL + ".");
-        System.err.println("Falha: " + falhaPrincipal.getMessage());
-        System.err.println("=".repeat(70));
-    }
-
-//   Lê variavel de ambiente
     private static String obterValor(String variavel, String padrao) {
         String valor = System.getenv(variavel);
         return (valor == null || valor.isBlank()) ? padrao : valor;
-    }
-
-    private static String montarMensagemDasDuasFalhas(SQLException falhaPrincipal,
-                                                      SQLException falhaLocal) {
-        return montarMensagemDeFalha(falhaPrincipal)
-                + "\n\n----------------------------------------\n"
-                + "O banco local de contingencia tambem nao respondeu em "
-                + HOST_LOCAL + ":" + PORTA_LOCAL + ".\n"
-                + "Detalhe: " + falhaLocal.getMessage();
     }
 
     /**
@@ -146,25 +81,22 @@ public final class ConexaoBD {
                 || detalhe.contains("Connection refused")
                 || detalhe.contains("Could not connect")) {
 
-            if (HOST.contains("tidbcloud.com")) {
-                return "Nao foi possivel conectar ao TiDB  " + HOST + ":" + PORTA + ".\n\n";
-            }
-            return "Nao foi possivel conectar ao MySQL " + HOST + ":" + PORTA + ".\n\n";
-        }
-        if (detalhe.contains("SSL") || detalhe.contains("TLS")
-                || detalhe.contains("certificate")) {
-            return "Falha no TLS com o servidor.\n\n";
-        }
-        if (detalhe.contains("Public Key Retrieval is not allowed")) {
-            return "O driver recusou a autenticacao. Confirme que a URL de conexao\n"
-                    + "contem allowPublicKeyRetrieval=true quando o SSL esta desligado.";
+            return "Nao foi possivel conectar ao MySQL em " + HOST + ":" + PORTA + ".\n\n"
+                    + "Verifique se o container do banco esta no ar\n"
+                    + "(docker compose ps) e se a porta " + PORTA + " confere.";
         }
         if (detalhe.contains("Access denied")) {
             return "Usuario ou senha do banco incorretos.\n\n"
-                    + "Usuario configurado: " + USUARIO + "\n";
+                    + "Usuario configurado: " + USUARIO;
         }
         if (detalhe.contains("Unknown database")) {
-            return "O banco '" + BANCO + "' nao existe no servidor.\n\n";
+            return "O banco '" + BANCO + "' nao existe no servidor " + HOST + ":" + PORTA + ".\n\n"
+                    + "Crie o banco e rode o schema.sql.";
+        }
+        if (detalhe.contains("Public Key Retrieval is not allowed")) {
+            return "O driver recusou a autenticacao.\n\n"
+                    + "Confirme que a URL contem allowPublicKeyRetrieval=true\n"
+                    + "quando o SSL esta desligado.";
         }
         return "Falha ao conectar ao banco de dados: " + detalhe;
     }
